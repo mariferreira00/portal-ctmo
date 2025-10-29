@@ -52,7 +52,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 
                 navigate(teacher ? "/instructor-dashboard" : "/instructor-setup");
               } else {
-                navigate("/student-portal");
+                // Check if user has student profile
+                const { data: student } = await supabase
+                  .from("students")
+                  .select("id")
+                  .eq("user_id", session.user.id)
+                  .maybeSingle();
+                
+                navigate(student ? "/student-portal" : "/student-setup");
               }
             } catch (error) {
               console.error("Error checking user role:", error);

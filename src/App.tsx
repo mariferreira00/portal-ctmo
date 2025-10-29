@@ -17,7 +17,8 @@ import Users from "./pages/Users";
 import StudentPortal from "./pages/StudentPortal";
 import Attendance from "./pages/Attendance";
 import NotFound from "./pages/NotFound";
-import { InstructorProfileSetup } from "./components/teachers/InstructorProfileSetup";
+import InstructorSetup from "./pages/InstructorSetup";
+import StudentSetup from "./pages/StudentSetup";
 
 const queryClient = new QueryClient();
 
@@ -146,7 +147,15 @@ const App = () => (
               path="/instructor-setup"
               element={
                 <ProtectedRoute>
-                  <InstructorProfileSetup onComplete={() => window.location.href = "/instructor-dashboard"} />
+                  <InstructorSetup />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student-setup"
+              element={
+                <ProtectedRoute>
+                  <StudentSetup />
                 </ProtectedRoute>
               }
             />
