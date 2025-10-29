@@ -54,8 +54,8 @@ const Index = () => {
             <Shield className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold">
-            <span className="text-primary">CTMO</span>
-            <span className="text-foreground"> Gestão</span>
+            <span className="text-primary">Portal</span>
+            <span className="text-foreground"> CTMO</span>
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Centro de Treinamento Marcial de Olinda
@@ -145,7 +145,7 @@ const Index = () => {
         </Card>
 
         <p className="text-center text-xs text-muted-foreground">
-          Sistema interno do CTMO • Acesso restrito
+          Portal CTMO • Acesso restrito
         </p>
       </div>
     </div>

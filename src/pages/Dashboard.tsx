@@ -21,7 +21,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-6 md:space-y-8">
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard CTMO</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard Portal CTMO</h1>
         <p className="text-sm md:text-base text-muted-foreground">Visão geral do centro de treinamento</p>
       </div>
 

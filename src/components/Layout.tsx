@@ -72,8 +72,8 @@ function AppSidebar() {
         {/* Logo */}
         <div className="p-6 border-b border-sidebar-border">
           <h1 className="text-2xl font-bold">
-            <span className="text-primary">CTMO</span>
-            {open && <span className="text-foreground"> Gestão</span>}
+            <span className="text-primary">Portal</span>
+            {open && <span className="text-foreground"> CTMO</span>}
           </h1>
           {open && (
             <p className="text-xs text-muted-foreground mt-1">
@@ -235,7 +235,7 @@ const Layout = ({ children }: LayoutProps) => {
               <Menu className="h-6 w-6" />
             </SidebarTrigger>
             <h2 className="font-bold text-lg">
-              <span className="text-primary">CTMO</span> Gestão
+              <span className="text-primary">Portal</span> CTMO
             </h2>
           </header>
 

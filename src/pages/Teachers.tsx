@@ -100,7 +100,7 @@ const Teachers = () => {
             Professores
           </h1>
           <p className="text-sm md:text-base text-muted-foreground">
-            Gerencie os instrutores do CTMO
+            Gerencie os instrutores do Portal CTMO
           </p>
         </div>
         <Button
