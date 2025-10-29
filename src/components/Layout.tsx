@@ -1,0 +1,252 @@
+import React, { ReactNode } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import {
+  LayoutDashboard,
+  Users,
+  GraduationCap,
+  UserCheck,
+  LogOut,
+  Menu,
+  Shield,
+  Calendar,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
+
+interface LayoutProps {
+  children: ReactNode;
+}
+
+const navItems = [
+  {
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Professores",
+    href: "/teachers",
+    icon: GraduationCap,
+  },
+  {
+    title: "Turmas",
+    href: "/classes",
+    icon: Users,
+  },
+  {
+    title: "Alunos",
+    href: "/students",
+    icon: UserCheck,
+  },
+  {
+    title: "Frequência",
+    href: "/attendance",
+    icon: Calendar,
+  },
+];
+
+function AppSidebar() {
+  const { open } = useSidebar();
+  const location = useLocation();
+  const { signOut, user } = useAuth();
+  const { isAdmin, isInstructor, roles } = useUserRole();
+  const isStudent = roles.includes("user");
+
+  return (
+    <Sidebar className="border-r border-sidebar-border">
+      <SidebarContent className="bg-sidebar">
+        {/* Logo */}
+        <div className="p-6 border-b border-sidebar-border">
+          <h1 className="text-2xl font-bold">
+            <span className="text-primary">CTMO</span>
+            {open && <span className="text-foreground"> Gestão</span>}
+          </h1>
+          {open && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Centro de Treinamento Marcial
+            </p>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-2 p-4">
+              {/* Show different navigation based on role */}
+              {isAdmin ? (
+                <>
+                  {/* Admin sees all menu items */}
+                  {navItems.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton asChild>
+                          <NavLink
+                            to={item.href}
+                            className={cn(
+                              "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
+                              isActive
+                                ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(0_84%_50%_/_0.3)]"
+                                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            )}
+                          >
+                            <item.icon className="w-5 h-5 shrink-0" />
+                            {open && <span className="font-medium">{item.title}</span>}
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                  
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to="/users"
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
+                          location.pathname === "/users"
+                            ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(0_84%_50%_/_0.3)]"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        )}
+                      >
+                        <Shield className="w-5 h-5 shrink-0" />
+                        {open && <span className="font-medium">Usuários</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
+              ) : isInstructor ? (
+                <>
+                  {/* Instructor only sees Dashboard and Classes */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to="/instructor-dashboard"
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
+                          location.pathname === "/instructor-dashboard"
+                            ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(0_84%_50%_/_0.3)]"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        )}
+                      >
+                        <LayoutDashboard className="w-5 h-5 shrink-0" />
+                        {open && <span className="font-medium">Dashboard</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to="/classes"
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
+                          location.pathname === "/classes"
+                            ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(0_84%_50%_/_0.3)]"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        )}
+                      >
+                        <Users className="w-5 h-5 shrink-0" />
+                        {open && <span className="font-medium">Minhas Turmas</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
+              ) : (
+                /* Student view - only show student portal */
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to="/student-portal"
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
+                        location.pathname === "/student-portal"
+                          ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(0_84%_50%_/_0.3)]"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      )}
+                    >
+                      <UserCheck className="w-5 h-5 shrink-0" />
+                      {open && <span className="font-medium">Meu Portal</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* User section */}
+        <div className="mt-auto p-4 border-t border-sidebar-border">
+          {user && open && (
+            <div className="flex items-center gap-3 px-4 py-3 mb-2">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <span className="text-primary font-bold">
+                  {user.email?.[0]?.toUpperCase() || "U"}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {user.email}
+                </p>
+              </div>
+            </div>
+          )}
+          <Button
+            variant="outline"
+            className={cn(
+              "w-full justify-start gap-2 border-border hover:bg-destructive hover:text-destructive-foreground",
+              !open && "justify-center px-2"
+            )}
+            onClick={signOut}
+          >
+            <LogOut className="w-4 h-4 shrink-0" />
+            {open && "Sair"}
+          </Button>
+        </div>
+      </SidebarContent>
+    </Sidebar>
+  );
+}
+
+const Layout = ({ children }: LayoutProps) => {
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AppSidebar />
+        
+        <main className="flex-1 flex flex-col w-full min-w-0">
+          {/* Mobile header with menu trigger */}
+          <header className="sticky top-0 z-10 flex items-center gap-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 lg:hidden">
+            <SidebarTrigger>
+              <Menu className="h-6 w-6" />
+            </SidebarTrigger>
+            <h2 className="font-bold text-lg">
+              <span className="text-primary">CTMO</span> Gestão
+            </h2>
+          </header>
+
+          {/* Main content */}
+          <div className="flex-1 p-4 md:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto w-full">{children}</div>
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
+  );
+};
+
+export default Layout;
