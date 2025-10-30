@@ -172,6 +172,52 @@ export type Database = {
           },
         ]
       }
+      post_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          reaction_type: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          reaction_type: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          reaction_type?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "training_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "training_posts_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_reactions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -277,6 +323,57 @@ export type Database = {
         }
         Relationships: []
       }
+      training_posts: {
+        Row: {
+          caption: string | null
+          class_id: string | null
+          created_at: string
+          id: string
+          photo_url: string
+          student_id: string
+          thumbnail_url: string | null
+          training_date: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          class_id?: string | null
+          created_at?: string
+          id?: string
+          photo_url: string
+          student_id: string
+          thumbnail_url?: string | null
+          training_date: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          class_id?: string | null
+          created_at?: string
+          id?: string
+          photo_url?: string
+          student_id?: string
+          thumbnail_url?: string | null
+          training_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_posts_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_posts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_achievements: {
         Row: {
           achievement_id: string
@@ -327,7 +424,38 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      training_posts_with_stats: {
+        Row: {
+          caption: string | null
+          class_id: string | null
+          created_at: string | null
+          id: string | null
+          photo_url: string | null
+          reaction_count: number | null
+          reactions_summary: Json | null
+          student_id: string | null
+          student_name: string | null
+          thumbnail_url: string | null
+          training_date: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_posts_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_posts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       can_view_student: {
@@ -338,6 +466,11 @@ export type Database = {
         Args: { _student_id: string }
         Returns: undefined
       }
+      check_post_achievements: {
+        Args: { p_student_id: string }
+        Returns: undefined
+      }
+      get_training_streak: { Args: { p_student_id: string }; Returns: number }
       get_users_with_emails: {
         Args: never
         Returns: {
