@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          points: number
+          rarity: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          name: string
+          points?: number
+          rarity?: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          points?: number
+          rarity?: string
+          requirement_type?: string
+          requirement_value?: number
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           checked_in_at: string
@@ -235,6 +277,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          completed: boolean
+          id: string
+          progress: number | null
+          student_id: string
+          unlocked_at: string
+        }
+        Insert: {
+          achievement_id: string
+          completed?: boolean
+          id?: string
+          progress?: number | null
+          student_id: string
+          unlocked_at?: string
+        }
+        Update: {
+          achievement_id?: string
+          completed?: boolean
+          id?: string
+          progress?: number | null
+          student_id?: string
+          unlocked_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -264,6 +333,10 @@ export type Database = {
       can_view_student: {
         Args: { _student_id: string; _user_id: string }
         Returns: boolean
+      }
+      check_and_unlock_achievements: {
+        Args: { _student_id: string }
+        Returns: undefined
       }
       get_users_with_emails: {
         Args: never

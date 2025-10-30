@@ -16,6 +16,7 @@ import Students from "./pages/Students";
 import Users from "./pages/Users";
 import StudentPortal from "./pages/StudentPortal";
 import Attendance from "./pages/Attendance";
+import Achievements from "./pages/Achievements";
 import NotFound from "./pages/NotFound";
 import InstructorSetup from "./pages/InstructorSetup";
 import StudentSetup from "./pages/StudentSetup";
@@ -139,6 +140,16 @@ const App = () => (
                 <ProtectedRoute>
                   <Layout>
                     <Attendance />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/achievements"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Achievements />
                   </Layout>
                 </ProtectedRoute>
               }

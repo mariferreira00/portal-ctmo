@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { WeeklyProgress } from "@/components/attendance/WeeklyProgress";
 import { StudentForm, StudentFormData } from "@/components/students/StudentForm";
+import { AchievementNotification } from "@/components/achievements/AchievementNotification";
 
 interface StudentProfile {
   id: string;
@@ -33,6 +34,13 @@ interface TodayAttendance {
   checked_in_at: string;
 }
 
+interface NewAchievement {
+  name: string;
+  description: string;
+  points: number;
+  rarity: string;
+}
+
 const StudentPortal = () => {
   const { user } = useAuth();
   const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
@@ -42,6 +50,7 @@ const StudentPortal = () => {
   const [weeklyCheckIns, setWeeklyCheckIns] = useState<Array<{ checked_in_at: string; class_name: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [setupMode, setSetupMode] = useState(false);
+  const [newAchievement, setNewAchievement] = useState<NewAchievement | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -232,6 +241,9 @@ const StudentPortal = () => {
       toast.success("Check-in realizado com sucesso!");
       fetchTodayAttendance();
       fetchWeeklyCheckIns();
+      
+      // Check for new achievements
+      await checkForNewAchievements();
     } catch (error: any) {
       if (error.code === '23505') {
         toast.error("Você já fez check-in nesta turma hoje!");
@@ -239,6 +251,52 @@ const StudentPortal = () => {
         toast.error("Erro ao fazer check-in");
       }
       console.error(error);
+    }
+  }
+
+  async function checkForNewAchievements() {
+    if (!studentProfile) return;
+
+    try {
+      // Get achievements that were just completed
+      const { data: recentAchievements, error } = await supabase
+        .from("user_achievements")
+        .select("completed, unlocked_at, achievement_id")
+        .eq("student_id", studentProfile.id)
+        .eq("completed", true)
+        .order("unlocked_at", { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      if (recentAchievements && recentAchievements.length > 0) {
+        const userAchievement = recentAchievements[0];
+        const unlockedAt = new Date(userAchievement.unlocked_at);
+        const now = new Date();
+        
+        // Only show notification if unlocked in the last 10 seconds
+        if (now.getTime() - unlockedAt.getTime() < 10000) {
+          // Fetch achievement details
+          const { data: achievementData, error: achievementError } = await supabase
+            .from("achievements")
+            .select("name, description, points, rarity")
+            .eq("id", userAchievement.achievement_id)
+            .single();
+
+          if (achievementError) throw achievementError;
+
+          if (achievementData) {
+            setNewAchievement({
+              name: achievementData.name,
+              description: achievementData.description,
+              points: achievementData.points,
+              rarity: achievementData.rarity,
+            });
+          }
+        }
+      }
+    } catch (error: any) {
+      console.error("Error checking achievements:", error);
     }
   }
 
@@ -294,6 +352,13 @@ const StudentPortal = () => {
 
   return (
     <div className="space-y-6 md:space-y-8">
+      {newAchievement && (
+        <AchievementNotification
+          achievement={newAchievement}
+          onClose={() => setNewAchievement(null)}
+        />
+      )}
+      
       <div>
         <h1 className="text-3xl md:text-4xl font-bold">Portal do Aluno</h1>
         <p className="text-sm md:text-base text-muted-foreground">
