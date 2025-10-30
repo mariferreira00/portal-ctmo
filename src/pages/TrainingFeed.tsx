@@ -45,7 +45,6 @@ const TrainingFeed = () => {
   }
 
   const myPosts = posts.filter((post) => post.student_id === studentId);
-  const classmatesPosts = posts.filter((post) => post.student_id !== studentId);
 
   if (!studentId) {
     return (
@@ -117,18 +116,14 @@ const TrainingFeed = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="feed" className="gap-2">
-            <Camera className="w-4 h-4" />
+            <Calendar className="w-4 h-4" />
             <span className="hidden sm:inline">Feed</span>
           </TabsTrigger>
           <TabsTrigger value="create" className="gap-2">
-            <TrendingUp className="w-4 h-4" />
+            <Camera className="w-4 h-4" />
             <span className="hidden sm:inline">Postar</span>
-          </TabsTrigger>
-          <TabsTrigger value="my-posts" className="gap-2">
-            <Calendar className="w-4 h-4" />
-            <span className="hidden sm:inline">Meus Posts</span>
           </TabsTrigger>
         </TabsList>
 
@@ -138,13 +133,15 @@ const TrainingFeed = () => {
             <div className="text-center py-12">
               <p className="text-muted-foreground">Carregando...</p>
             </div>
-          ) : classmatesPosts.length > 0 ? (
+          ) : posts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {classmatesPosts.map((post) => (
+              {posts.map((post) => (
                 <TrainingPostCard
                   key={post.id}
                   post={post}
                   onReaction={addReaction}
+                  onDelete={post.student_id === studentId ? deletePost : undefined}
+                  canDelete={post.student_id === studentId}
                 />
               ))}
             </div>
@@ -164,37 +161,6 @@ const TrainingFeed = () => {
           <div className="max-w-2xl mx-auto">
             <CreateTrainingPost onSubmit={createPost} />
           </div>
-        </TabsContent>
-
-        {/* My Posts Tab */}
-        <TabsContent value="my-posts" className="mt-6">
-          {myPosts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {myPosts.map((post) => (
-                <TrainingPostCard
-                  key={post.id}
-                  post={post}
-                  onReaction={addReaction}
-                  onDelete={deletePost}
-                  canDelete={true}
-                />
-              ))}
-            </div>
-          ) : (
-            <Card className="p-12 text-center">
-              <Camera className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-              <h3 className="text-xl font-semibold mb-2">
-                Você ainda não postou
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Comece sua jornada compartilhando sua primeira foto de treino!
-              </p>
-              <Badge variant="outline" className="text-primary border-primary">
-                <Camera className="w-3 h-3 mr-1" />
-                Clique em "Postar" para começar
-              </Badge>
-            </Card>
-          )}
         </TabsContent>
       </Tabs>
     </div>
