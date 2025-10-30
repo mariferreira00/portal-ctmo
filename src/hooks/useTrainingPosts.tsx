@@ -109,6 +109,14 @@ export function useTrainingPosts() {
     }
 
     try {
+      // Get student's class_id
+      const { data: enrollment } = await supabase
+        .from("class_enrollments")
+        .select("class_id")
+        .eq("student_id", studentId)
+        .limit(1)
+        .maybeSingle();
+
       // Check if already posted today
       const { data: existingPost } = await supabase
         .from("training_posts")
@@ -158,6 +166,7 @@ export function useTrainingPosts() {
         .from("training_posts")
         .insert({
           student_id: studentId,
+          class_id: enrollment?.class_id || null,
           photo_url: processResult.photoUrl,
           thumbnail_url: processResult.thumbnailUrl,
           caption: caption || null,
