@@ -96,6 +96,14 @@ export default function InstructorRequests() {
 
       if (updateError) throw updateError;
 
+      // Remove existing user role
+      const { error: deleteError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", userId);
+
+      if (deleteError) throw deleteError;
+
       // Add instructor role
       const { error: roleError } = await supabase
         .from("user_roles")
