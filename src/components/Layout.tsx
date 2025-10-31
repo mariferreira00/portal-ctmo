@@ -163,7 +163,24 @@ function AppSidebar() {
                         )}
                       >
                         <Bell className="w-5 h-5 shrink-0" />
-                        {open && <span className="font-medium">Solicitações</span>}
+                        {open && <span className="font-medium">Solicitações Turma</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to="/instructor-requests"
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
+                          location.pathname === "/instructor-requests"
+                            ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(0_84%_50%_/_0.3)]"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        )}
+                      >
+                        <GraduationCap className="w-5 h-5 shrink-0" />
+                        {open && <span className="font-medium">Solicitações Instrutor</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

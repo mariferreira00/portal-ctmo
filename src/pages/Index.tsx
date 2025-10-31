@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Schema de validação
 const signUpSchema = z.object({
@@ -63,6 +64,7 @@ const Index = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [wantsInstructor, setWantsInstructor] = useState(false);
   const { signIn, signUp, user } = useAuth();
 
   useEffect(() => {
@@ -112,10 +114,30 @@ const Index = () => {
         }
 
         await signUp(result.data.email, result.data.password, result.data.fullName);
+        
+        // If user wants to be an instructor, create a request after signup
+        if (wantsInstructor) {
+          // Wait a bit for the user to be created
+          setTimeout(async () => {
+            try {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                await supabase
+                  .from('instructor_requests')
+                  .insert({ user_id: user.id });
+                toast.success("Solicitação para ser instrutor enviada com sucesso!");
+              }
+            } catch (error) {
+              console.error('Error creating instructor request:', error);
+            }
+          }, 1000);
+        }
+        
         setIsSignUp(false);
         setEmail("");
         setPassword("");
         setFullName("");
+        setWantsInstructor(false);
       } else {
         // Validar login
         const result = signInSchema.safeParse({ email, password });
@@ -359,6 +381,22 @@ const Index = () => {
                   </div>
                 )}
               </div>
+
+              {isSignUp && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="instructor"
+                    checked={wantsInstructor}
+                    onCheckedChange={(checked) => setWantsInstructor(checked === true)}
+                  />
+                  <label
+                    htmlFor="instructor"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Quero ser instrutor (sujeito a aprovação)
+                  </label>
+                </div>
+              )}
             </div>
 
             <Button

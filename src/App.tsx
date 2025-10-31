@@ -23,6 +23,7 @@ import TrainingFeed from "./pages/TrainingFeed";
 import NotFound from "./pages/NotFound";
 import InstructorSetup from "./pages/InstructorSetup";
 import StudentSetup from "./pages/StudentSetup";
+import InstructorRequests from "./pages/InstructorRequests";
 import InstructorReports from "./pages/InstructorReports";
 import AdminReports from "./pages/AdminReports";
 import EnrollmentRequests from "./pages/EnrollmentRequests";
@@ -244,6 +245,16 @@ const App = () => (
                 <ProtectedRoute>
                   <Layout>
                     <EnrollmentRequests />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/instructor-requests"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <InstructorRequests />
                   </Layout>
                 </ProtectedRoute>
               }
