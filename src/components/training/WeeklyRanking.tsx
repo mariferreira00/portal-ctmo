@@ -12,7 +12,7 @@ interface RankingEntry {
   student_name: string;
   student_avatar_url: string | null;
   post_count: number;
-  total_reactions: number;
+  checkin_count: number;
   score: number;
 }
 
@@ -30,34 +30,63 @@ export const WeeklyRanking = () => {
       const weekStart = startOfWeek(new Date(), { locale: ptBR });
       const weekEnd = endOfWeek(new Date(), { locale: ptBR });
 
-      // Get posts from this week with reaction counts
+      // Get posts from this week
       const { data: posts, error: postsError } = await supabase
-        .from("training_posts_with_stats")
-        .select("student_id, student_name, student_avatar_url, reaction_count")
+        .from("training_posts")
+        .select("student_id, students(full_name, avatar_url)")
         .gte("training_date", format(weekStart, "yyyy-MM-dd"))
         .lte("training_date", format(weekEnd, "yyyy-MM-dd"));
 
       if (postsError) throw postsError;
 
+      // Get check-ins from this week
+      const { data: checkins, error: checkinsError } = await supabase
+        .from("attendance")
+        .select("student_id, students(full_name, avatar_url)")
+        .gte("checked_in_at", weekStart.toISOString())
+        .lte("checked_in_at", weekEnd.toISOString());
+
+      if (checkinsError) throw checkinsError;
+
       // Aggregate by student
       const studentStats = new Map<string, RankingEntry>();
 
+      // Count posts (1 point each)
       posts?.forEach((post) => {
+        const student = post.students as any;
         const existing = studentStats.get(post.student_id);
-        const reactions = post.reaction_count || 0;
 
         if (existing) {
           existing.post_count += 1;
-          existing.total_reactions += reactions;
-          existing.score = existing.post_count * 10 + existing.total_reactions * 2;
+          existing.score += 1;
         } else {
           studentStats.set(post.student_id, {
             student_id: post.student_id,
-            student_name: post.student_name || "Anônimo",
-            student_avatar_url: post.student_avatar_url,
+            student_name: student?.full_name || "Anônimo",
+            student_avatar_url: student?.avatar_url,
             post_count: 1,
-            total_reactions: reactions,
-            score: 10 + reactions * 2,
+            checkin_count: 0,
+            score: 1,
+          });
+        }
+      });
+
+      // Count check-ins (2 points each)
+      checkins?.forEach((checkin) => {
+        const student = checkin.students as any;
+        const existing = studentStats.get(checkin.student_id);
+
+        if (existing) {
+          existing.checkin_count += 1;
+          existing.score += 2;
+        } else {
+          studentStats.set(checkin.student_id, {
+            student_id: checkin.student_id,
+            student_name: student?.full_name || "Anônimo",
+            student_avatar_url: student?.avatar_url,
+            post_count: 0,
+            checkin_count: 1,
+            score: 2,
           });
         }
       });
@@ -169,9 +198,8 @@ export const WeeklyRanking = () => {
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold truncate">{entry.student_name}</p>
                   <p className="text-sm text-muted-foreground">
-                    {entry.post_count} {entry.post_count === 1 ? "post" : "posts"} •{" "}
-                    {entry.total_reactions}{" "}
-                    {entry.total_reactions === 1 ? "reação" : "reações"}
+                    {entry.checkin_count} {entry.checkin_count === 1 ? "check-in" : "check-ins"} •{" "}
+                    {entry.post_count} {entry.post_count === 1 ? "foto" : "fotos"}
                   </p>
                 </div>
               </div>
@@ -186,8 +214,8 @@ export const WeeklyRanking = () => {
 
         <div className="mt-6 p-4 bg-muted/50 rounded-lg">
           <p className="text-xs text-muted-foreground">
-            <strong>Sistema de Pontuação:</strong> 10 pontos por post + 2 pontos por
-            reação recebida
+            <strong>Sistema de Pontuação:</strong> 2 pontos por check-in + 1 ponto por
+            foto postada
           </p>
         </div>
       </Card>
