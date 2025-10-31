@@ -83,13 +83,6 @@ export default function InstructorRequests() {
 
   const handleApprove = async (requestId: string, userId: string) => {
     try {
-      // Find the request to get user email
-      const request = requests.find(r => r.id === requestId);
-      if (!request) {
-        toast.error("Solicitação não encontrada");
-        return;
-      }
-
       // Update request status
       const { error: updateError } = await supabase
         .from("instructor_requests")
@@ -113,22 +106,7 @@ export default function InstructorRequests() {
 
       if (roleError) throw roleError;
 
-      // Send notification email
-      if (request.email && request.profiles) {
-        try {
-          await supabase.functions.invoke("notify-instructor-approval", {
-            body: {
-              email: request.email,
-              fullName: request.profiles.full_name,
-            },
-          });
-        } catch (emailError) {
-          console.error("Error sending notification email:", emailError);
-          // Don't fail the approval if email fails
-        }
-      }
-
-      toast.success("Solicitação aprovada com sucesso!");
+      toast.success("Solicitação aprovada! Avise o usuário pessoalmente.");
       fetchRequests();
     } catch (error) {
       console.error("Error approving request:", error);
