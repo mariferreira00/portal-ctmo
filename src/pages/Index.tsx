@@ -137,11 +137,24 @@ const Index = () => {
           
           if (requestError) {
             console.error('Error creating instructor request:', requestError);
+            toast.error("Erro ao criar solicitação de instrutor");
           } else {
+            // Sign out immediately to prevent automatic redirect
+            await supabase.auth.signOut();
+            
             toast.success(
-              "Sua solicitação foi enviada para o administrador, caso seja aprovado você será notificado via email",
+              "Sua solicitação foi enviada para o administrador. Você será notificado por email quando for aprovado.",
               { duration: 8000 }
             );
+            
+            // Reset form and stay on login screen
+            setIsSignUp(false);
+            setEmail("");
+            setPassword("");
+            setFullName("");
+            setWantsInstructor(false);
+            setLoading(false);
+            return;
           }
         } else {
           toast.success("Cadastro realizado! Faça login para continuar.");
