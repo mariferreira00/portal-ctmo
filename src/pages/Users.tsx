@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserCog, Shield, User as UserIcon } from "lucide-react";
+import { UserCog, Shield, User as UserIcon, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -26,6 +36,7 @@ interface UserWithRoles {
 const Users = () => {
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const { isAdmin } = useUserRole();
 
   useEffect(() => {
@@ -93,6 +104,57 @@ const Users = () => {
       fetchUsers();
     } catch (error: any) {
       toast.error(error.message || "Erro ao atualizar permissão");
+      console.error(error);
+    }
+  }
+
+  async function handleDeleteUser(userId: string) {
+    try {
+      // Delete user roles
+      const { error: rolesError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", userId);
+
+      if (rolesError) throw rolesError;
+
+      // Delete student record if exists
+      const { error: studentError } = await supabase
+        .from("students")
+        .delete()
+        .eq("user_id", userId);
+
+      if (studentError && studentError.code !== "PGRST116") throw studentError;
+
+      // Delete teacher record if exists
+      const { error: teacherError } = await supabase
+        .from("teachers")
+        .delete()
+        .eq("user_id", userId);
+
+      if (teacherError && teacherError.code !== "PGRST116") throw teacherError;
+
+      // Delete instructor profile if exists
+      const { error: instructorError } = await supabase
+        .from("instructor_profile")
+        .delete()
+        .eq("user_id", userId);
+
+      if (instructorError && instructorError.code !== "PGRST116") throw instructorError;
+
+      // Delete profile
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", userId);
+
+      if (profileError) throw profileError;
+
+      toast.success("Usuário excluído com sucesso!");
+      setUserToDelete(null);
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao excluir usuário");
       console.error(error);
     }
   }
@@ -213,11 +275,39 @@ const Users = () => {
                     <SelectItem value="admin">Administrador</SelectItem>
                   </SelectContent>
                 </Select>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => setUserToDelete(user.id)}
+                  title="Excluir usuário"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </Card>
         ))}
       </div>
+
+      <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita e todos os dados associados serão removidos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => userToDelete && handleDeleteUser(userToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
