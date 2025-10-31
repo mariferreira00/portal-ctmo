@@ -52,20 +52,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 
                 navigate(teacher ? "/instructor-dashboard" : "/instructor-setup");
               } else {
-                // User or no role - treat as student
-                // Check if user has student profile
+                // User role - check for student profile
                 const { data: student } = await supabase
                   .from("students")
                   .select("id")
                   .eq("user_id", session.user.id)
                   .maybeSingle();
-                
-                // If no role exists, create default "user" role
-                if (!roles || roles.length === 0) {
-                  await supabase
-                    .from("user_roles")
-                    .insert([{ user_id: session.user.id, role: "user" }]);
-                }
                 
                 navigate(student ? "/student-portal" : "/student-setup");
               }
