@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Calendar, Users, Clock } from "lucide-react";
+import { CheckCircle2, Calendar, Users, Clock, Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { WeeklyProgress } from "@/components/attendance/WeeklyProgress";
 import { StudentForm, StudentFormData } from "@/components/students/StudentForm";
 import { AchievementNotification } from "@/components/achievements/AchievementNotification";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface StudentProfile {
   id: string;
@@ -15,6 +17,7 @@ interface StudentProfile {
   email: string;
   user_id: string;
   payment_due_day: number | null;
+  weekly_goal: number;
 }
 
 interface ClassEnrollment {
@@ -51,6 +54,8 @@ const StudentPortal = () => {
   const [loading, setLoading] = useState(true);
   const [setupMode, setSetupMode] = useState(false);
   const [newAchievement, setNewAchievement] = useState<NewAchievement | null>(null);
+  const [editingGoal, setEditingGoal] = useState(false);
+  const [tempGoal, setTempGoal] = useState<number>(3);
 
   useEffect(() => {
     if (user) {
@@ -79,6 +84,7 @@ const StudentPortal = () => {
 
       if (data) {
         setStudentProfile(data);
+        setTempGoal(data.weekly_goal);
       } else {
         setSetupMode(true);
       }
@@ -308,6 +314,31 @@ const StudentPortal = () => {
     return enrollments.some(e => e.class_id === classId);
   }
 
+  async function handleUpdateGoal() {
+    if (!studentProfile) return;
+    
+    if (tempGoal < 1 || tempGoal > 7) {
+      toast.error("A meta deve ser entre 1 e 7 treinos");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("students")
+        .update({ weekly_goal: tempGoal })
+        .eq("id", studentProfile.id);
+
+      if (error) throw error;
+
+      setStudentProfile({ ...studentProfile, weekly_goal: tempGoal });
+      setEditingGoal(false);
+      toast.success("Meta semanal atualizada!");
+    } catch (error: any) {
+      toast.error("Erro ao atualizar meta");
+      console.error(error);
+    }
+  }
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   }
@@ -385,8 +416,69 @@ const StudentPortal = () => {
         </Card>
       )}
 
+      {/* Weekly Goal Configuration */}
+      <Card className="p-6 bg-card border-border">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Target className="w-5 h-5 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground">Meta Semanal</h3>
+          </div>
+          {!editingGoal && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditingGoal(true)}
+            >
+              Editar
+            </Button>
+          )}
+        </div>
+
+        {editingGoal ? (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="weekly-goal">Quantos treinos você pretende fazer por semana?</Label>
+              <Input
+                id="weekly-goal"
+                type="number"
+                min="1"
+                max="7"
+                value={tempGoal}
+                onChange={(e) => setTempGoal(parseInt(e.target.value) || 1)}
+                className="mt-2"
+              />
+              <p className="text-sm text-muted-foreground mt-2">
+                Defina sua meta entre 1 e 7 treinos por semana
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleUpdateGoal} size="sm">
+                Salvar
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setTempGoal(studentProfile?.weekly_goal || 3);
+                  setEditingGoal(false);
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-muted-foreground">
+            Sua meta atual: <span className="font-semibold text-foreground">{studentProfile?.weekly_goal || 3} treinos por semana</span>
+          </p>
+        )}
+      </Card>
+
       {/* Weekly Progress */}
-      <WeeklyProgress checkIns={weeklyCheckIns} />
+      <WeeklyProgress 
+        checkIns={weeklyCheckIns} 
+        weeklyGoal={studentProfile?.weekly_goal || 3}
+      />
 
       {/* Minhas Turmas */}
       <div>

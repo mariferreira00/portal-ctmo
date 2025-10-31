@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 
 interface WeeklyProgressProps {
   checkIns: Array<{ checked_in_at: string; class_name: string }>;
+  weeklyGoal?: number;
 }
 
-export function WeeklyProgress({ checkIns }: WeeklyProgressProps) {
+export function WeeklyProgress({ checkIns, weeklyGoal = 7 }: WeeklyProgressProps) {
   const today = new Date();
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date(today);
@@ -23,7 +24,7 @@ export function WeeklyProgress({ checkIns }: WeeklyProgressProps) {
   }, {} as Record<string, typeof checkIns>);
 
   const totalCheckIns = checkIns.length;
-  const progressPercentage = Math.min((totalCheckIns / 7) * 100, 100);
+  const progressPercentage = Math.min((totalCheckIns / weeklyGoal) * 100, 100);
 
   return (
     <Card className="p-6 bg-card border-border">
@@ -38,9 +39,14 @@ export function WeeklyProgress({ checkIns }: WeeklyProgressProps) {
         <div>
           <div className="flex justify-between text-sm mb-2">
             <span className="text-muted-foreground">Check-ins realizados</span>
-            <span className="font-semibold text-foreground">{totalCheckIns}/7</span>
+            <span className="font-semibold text-foreground">{totalCheckIns}/{weeklyGoal}</span>
           </div>
           <Progress value={progressPercentage} className="h-2" />
+          {totalCheckIns >= weeklyGoal && (
+            <p className="text-sm text-primary font-semibold mt-2">
+              🎉 Meta da semana alcançada!
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-7 gap-2">

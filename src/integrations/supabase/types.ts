@@ -366,6 +366,7 @@ export type Database = {
           phone: string | null
           updated_at: string
           user_id: string | null
+          weekly_goal: number
         }
         Insert: {
           active?: boolean
@@ -382,6 +383,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string | null
+          weekly_goal?: number
         }
         Update: {
           active?: boolean
@@ -398,6 +400,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string | null
+          weekly_goal?: number
         }
         Relationships: []
       }
