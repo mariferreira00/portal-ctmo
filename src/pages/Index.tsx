@@ -113,24 +113,38 @@ const Index = () => {
           return;
         }
 
-        await signUp(result.data.email, result.data.password, result.data.fullName);
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: result.data.email,
+          password: result.data.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              full_name: result.data.fullName,
+            },
+          },
+        });
+
+        if (signUpError) throw signUpError;
         
-        // If user wants to be an instructor, create a request after signup
-        if (wantsInstructor) {
-          // Wait a bit for the user to be created
-          setTimeout(async () => {
-            try {
-              const { data: { user } } = await supabase.auth.getUser();
-              if (user) {
-                await supabase
-                  .from('instructor_requests')
-                  .insert({ user_id: user.id });
-                toast.success("Solicitação para ser instrutor enviada com sucesso!");
-              }
-            } catch (error) {
-              console.error('Error creating instructor request:', error);
-            }
-          }, 1000);
+        // If user wants to be an instructor, create a request immediately
+        if (wantsInstructor && signUpData.user) {
+          const { error: requestError } = await supabase
+            .from('instructor_requests')
+            .insert({ 
+              user_id: signUpData.user.id,
+              email: result.data.email 
+            });
+          
+          if (requestError) {
+            console.error('Error creating instructor request:', requestError);
+          } else {
+            toast.success(
+              "Sua solicitação foi enviada para o administrador, caso seja aprovado você será notificado via email",
+              { duration: 8000 }
+            );
+          }
+        } else {
+          toast.success("Cadastro realizado! Faça login para continuar.");
         }
         
         setIsSignUp(false);
@@ -393,7 +407,7 @@ const Index = () => {
                     htmlFor="instructor"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    Quero ser instrutor (sujeito a aprovação)
+                    Criar conta de instrutor
                   </label>
                 </div>
               )}
