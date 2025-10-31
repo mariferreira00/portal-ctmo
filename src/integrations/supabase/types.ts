@@ -226,6 +226,35 @@ export type Database = {
           },
         ]
       }
+      instructor_profile: {
+        Row: {
+          created_at: string
+          id: string
+          teacher_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          teacher_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          teacher_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instructor_profile_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           comment_text: string | null
@@ -297,21 +326,24 @@ export type Database = {
           created_at: string
           id: string
           post_id: string
-          student_id: string
+          student_id: string | null
+          teacher_id: string | null
         }
         Insert: {
           comment: string
           created_at?: string
           id?: string
           post_id: string
-          student_id: string
+          student_id?: string | null
+          teacher_id?: string | null
         }
         Update: {
           comment?: string
           created_at?: string
           id?: string
           post_id?: string
-          student_id?: string
+          student_id?: string | null
+          teacher_id?: string | null
         }
         Relationships: [
           {
@@ -333,6 +365,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_comments_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
             referencedColumns: ["id"]
           },
         ]

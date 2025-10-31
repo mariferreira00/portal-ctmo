@@ -30,6 +30,7 @@ interface TrainingPostCardProps {
   onDelete?: (postId: string) => void;
   canDelete?: boolean;
   currentStudentId?: string;
+  currentTeacherId?: string;
 }
 
 const REACTIONS = [
@@ -46,6 +47,7 @@ export const TrainingPostCard = ({
   onDelete,
   canDelete,
   currentStudentId,
+  currentTeacherId,
 }: TrainingPostCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
@@ -162,7 +164,7 @@ export const TrainingPostCard = ({
         </p>
 
         {/* Comments Section */}
-        {currentStudentId && (
+        {(currentStudentId || currentTeacherId) && (
           <Collapsible open={commentsOpen} onOpenChange={setCommentsOpen}>
             <CollapsibleTrigger asChild>
               <Button variant="ghost" size="sm" className="w-full gap-2">
@@ -174,6 +176,7 @@ export const TrainingPostCard = ({
               <PostComments
                 postId={post.id}
                 currentStudentId={currentStudentId}
+                currentTeacherId={currentTeacherId}
                 postOwnerId={post.student_id}
               />
             </CollapsibleContent>

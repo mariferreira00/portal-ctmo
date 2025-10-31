@@ -9,8 +9,13 @@ import { WeeklyRanking } from "@/components/training/WeeklyRanking";
 import { NotificationBell } from "@/components/training/NotificationBell";
 import { useTrainingPosts } from "@/hooks/useTrainingPosts";
 import { Badge } from "@/components/ui/badge";
+import { useUserRole } from "@/hooks/useUserRole";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const TrainingFeed = () => {
+  const { user } = useAuth();
+  const { isInstructor } = useUserRole();
   const {
     posts,
     loading,
@@ -24,6 +29,28 @@ const TrainingFeed = () => {
   const [streak, setStreak] = useState(0);
   const [postsThisMonth, setPostsThisMonth] = useState(0);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [teacherId, setTeacherId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user && isInstructor) {
+      fetchTeacherId();
+    }
+  }, [user, isInstructor]);
+
+  async function fetchTeacherId() {
+    try {
+      const { data, error } = await supabase
+        .from("teachers")
+        .select("id")
+        .eq("user_id", user?.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data) setTeacherId(data.id);
+    } catch (error: any) {
+      console.error("Error fetching teacher ID:", error);
+    }
+  }
 
   useEffect(() => {
     if (studentId) {
@@ -50,7 +77,7 @@ const TrainingFeed = () => {
 
   const myPosts = posts.filter((post) => post.student_id === studentId);
 
-  if (!studentId) {
+  if (!studentId && !isInstructor) {
     return (
       <div className="space-y-6">
         <div>
@@ -81,65 +108,71 @@ const TrainingFeed = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-orange-500/10 rounded-full">
-              <TrendingUp className="w-6 h-6 text-orange-500" />
+      {studentId && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-orange-500/10 rounded-full">
+                <TrendingUp className="w-6 h-6 text-orange-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Sequência Atual</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {streak} dias 🔥
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Sequência Atual</p>
-              <p className="text-2xl font-bold text-foreground">
-                {streak} dias 🔥
-              </p>
-            </div>
-          </div>
-        </Card>
+          </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Camera className="w-6 h-6 text-primary" />
+          <Card className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Camera className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Posts este Mês</p>
+                <p className="text-2xl font-bold text-foreground">{postsThisMonth}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Posts este Mês</p>
-              <p className="text-2xl font-bold text-foreground">{postsThisMonth}</p>
-            </div>
-          </div>
-        </Card>
+          </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-purple-500/10 rounded-full">
-              <Trophy className="w-6 h-6 text-purple-500" />
+          <Card className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-purple-500/10 rounded-full">
+                <Trophy className="w-6 h-6 text-purple-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total de Posts</p>
+                <p className="text-2xl font-bold text-foreground">{myPosts.length}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total de Posts</p>
-              <p className="text-2xl font-bold text-foreground">{myPosts.length}</p>
-            </div>
-          </div>
-        </Card>
-      </div>
+          </Card>
+        </div>
+      )}
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className={studentId ? "grid w-full grid-cols-4" : "grid w-full grid-cols-1"}>
           <TabsTrigger value="feed" className="gap-2">
             <Trophy className="w-4 h-4" />
             <span className="hidden sm:inline">Feed</span>
           </TabsTrigger>
-          <TabsTrigger value="ranking" className="gap-2">
-            <TrendingUp className="w-4 h-4" />
-            <span className="hidden sm:inline">Ranking</span>
-          </TabsTrigger>
-          <TabsTrigger value="calendar" className="gap-2">
-            <Calendar className="w-4 h-4" />
-            <span className="hidden sm:inline">Calendário</span>
-          </TabsTrigger>
-          <TabsTrigger value="create" className="gap-2">
-            <Camera className="w-4 h-4" />
-            <span className="hidden sm:inline">Postar</span>
-          </TabsTrigger>
+          {studentId && (
+            <>
+              <TabsTrigger value="ranking" className="gap-2">
+                <TrendingUp className="w-4 h-4" />
+                <span className="hidden sm:inline">Ranking</span>
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="gap-2">
+                <Calendar className="w-4 h-4" />
+                <span className="hidden sm:inline">Calendário</span>
+              </TabsTrigger>
+              <TabsTrigger value="create" className="gap-2">
+                <Camera className="w-4 h-4" />
+                <span className="hidden sm:inline">Postar</span>
+              </TabsTrigger>
+            </>
+          )}
         </TabsList>
 
         {/* Feed Tab */}
@@ -158,6 +191,7 @@ const TrainingFeed = () => {
                   onDelete={post.student_id === studentId ? deletePost : undefined}
                   canDelete={post.student_id === studentId}
                   currentStudentId={studentId || undefined}
+                  currentTeacherId={teacherId || undefined}
                 />
               ))}
             </div>
