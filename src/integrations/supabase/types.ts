@@ -172,6 +172,117 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          comment_text: string | null
+          created_at: string
+          from_student_id: string
+          id: string
+          post_id: string
+          reaction_type: string | null
+          read: boolean
+          student_id: string
+          type: string
+        }
+        Insert: {
+          comment_text?: string | null
+          created_at?: string
+          from_student_id: string
+          id?: string
+          post_id: string
+          reaction_type?: string | null
+          read?: boolean
+          student_id: string
+          type: string
+        }
+        Update: {
+          comment_text?: string | null
+          created_at?: string
+          from_student_id?: string
+          id?: string
+          post_id?: string
+          reaction_type?: string | null
+          read?: boolean
+          student_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_from_student_id_fkey"
+            columns: ["from_student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "training_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "training_posts_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_comments: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          post_id: string
+          student_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          id?: string
+          post_id: string
+          student_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "training_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "training_posts_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_comments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_reactions: {
         Row: {
           created_at: string

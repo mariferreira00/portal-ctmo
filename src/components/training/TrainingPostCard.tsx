@@ -15,14 +15,21 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { Trash2, MessageCircle } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { PostComments } from "./PostComments";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface TrainingPostCardProps {
   post: TrainingPost;
   onReaction: (postId: string, reactionType: string) => void;
   onDelete?: (postId: string) => void;
   canDelete?: boolean;
+  currentStudentId?: string;
 }
 
 const REACTIONS = [
@@ -38,8 +45,10 @@ export const TrainingPostCard = ({
   onReaction,
   onDelete,
   canDelete,
+  currentStudentId,
 }: TrainingPostCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -151,6 +160,25 @@ export const TrainingPostCard = ({
             locale: ptBR,
           })}
         </p>
+
+        {/* Comments Section */}
+        {currentStudentId && (
+          <Collapsible open={commentsOpen} onOpenChange={setCommentsOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-full gap-2">
+                <MessageCircle className="w-4 h-4" />
+                <span>Comentários</span>
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-3">
+              <PostComments
+                postId={post.id}
+                currentStudentId={currentStudentId}
+                postOwnerId={post.student_id}
+              />
+            </CollapsibleContent>
+          </Collapsible>
+        )}
       </div>
     </Card>
   );
