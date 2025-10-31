@@ -105,19 +105,21 @@ const Achievements = () => {
     return userAchievements.find((ua) => ua.achievement_id === achievementId);
   };
 
-  const filteredAchievements = achievements.filter((achievement) => {
-    if (activeCategory === "all") return true;
-    
-    // Mapear categorias em português para inglês
-    const categoryMap: { [key: string]: string } = {
-      "Presença": "attendance",
-      "Treino": "training",
-      "Marcos": "milestone",
-      "Sequência": "streak"
-    };
-    
-    return categoryMap[achievement.category] === activeCategory;
-  });
+  const filteredAchievements = React.useMemo(() => {
+    return achievements.filter((achievement) => {
+      if (activeCategory === "all") return true;
+      
+      // Mapear categorias em português para inglês
+      const categoryMap: { [key: string]: string } = {
+        "Presença": "attendance",
+        "Treino": "training",
+        "Marcos": "milestone",
+        "Sequência": "streak"
+      };
+      
+      return categoryMap[achievement.category] === activeCategory;
+    });
+  }, [achievements, activeCategory]);
 
   const completedCount = userAchievements.filter((ua) => ua.completed).length;
   const totalPoints = userAchievements
