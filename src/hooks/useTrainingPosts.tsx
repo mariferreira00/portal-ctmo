@@ -40,7 +40,7 @@ export function useTrainingPosts() {
   }, [user]);
 
   useEffect(() => {
-    if (studentId) {
+    if (user) {
       fetchPosts();
       
       // Subscribe to realtime updates
@@ -63,7 +63,7 @@ export function useTrainingPosts() {
         supabase.removeChannel(channel);
       };
     }
-  }, [studentId]);
+  }, [user, studentId]);
 
   async function fetchStudentId() {
     try {
@@ -206,7 +206,10 @@ export function useTrainingPosts() {
   }
 
   async function addReaction(postId: string, reactionType: string): Promise<boolean> {
-    if (!studentId) return false;
+    if (!studentId) {
+      toast.error("Apenas alunos podem reagir aos posts");
+      return false;
+    }
 
     try {
       // Check if already reacted
