@@ -22,6 +22,7 @@ import TrainingFeed from "./pages/TrainingFeed";
 import NotFound from "./pages/NotFound";
 import InstructorSetup from "./pages/InstructorSetup";
 import StudentSetup from "./pages/StudentSetup";
+import { GlobalAchievementNotifications } from "./components/GlobalAchievementNotifications";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <GlobalAchievementNotifications />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route
