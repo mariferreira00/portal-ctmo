@@ -23,6 +23,8 @@ import TrainingFeed from "./pages/TrainingFeed";
 import NotFound from "./pages/NotFound";
 import InstructorSetup from "./pages/InstructorSetup";
 import StudentSetup from "./pages/StudentSetup";
+import InstructorReports from "./pages/InstructorReports";
+import AdminReports from "./pages/AdminReports";
 import { GlobalAchievementNotifications } from "./components/GlobalAchievementNotifications";
 
 const queryClient = new QueryClient();
@@ -211,6 +213,26 @@ const App = () => (
                 <ProtectedRoute>
                   <Layout>
                     <InstructorDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/instructor-reports"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <InstructorReports />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-reports"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AdminReports />
                   </Layout>
                 </ProtectedRoute>
               }
