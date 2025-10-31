@@ -110,45 +110,15 @@ const Users = () => {
 
   async function handleDeleteUser(userId: string) {
     try {
-      // Delete user roles
-      const { error: rolesError } = await supabase
-        .from("user_roles")
-        .delete()
-        .eq("user_id", userId);
+      // Call edge function to delete user from auth
+      const { error: deleteError } = await supabase.functions.invoke(
+        "delete-user",
+        {
+          body: { userId },
+        }
+      );
 
-      if (rolesError) throw rolesError;
-
-      // Delete student record if exists
-      const { error: studentError } = await supabase
-        .from("students")
-        .delete()
-        .eq("user_id", userId);
-
-      if (studentError && studentError.code !== "PGRST116") throw studentError;
-
-      // Delete teacher record if exists
-      const { error: teacherError } = await supabase
-        .from("teachers")
-        .delete()
-        .eq("user_id", userId);
-
-      if (teacherError && teacherError.code !== "PGRST116") throw teacherError;
-
-      // Delete instructor profile if exists
-      const { error: instructorError } = await supabase
-        .from("instructor_profile")
-        .delete()
-        .eq("user_id", userId);
-
-      if (instructorError && instructorError.code !== "PGRST116") throw instructorError;
-
-      // Delete profile
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .delete()
-        .eq("id", userId);
-
-      if (profileError) throw profileError;
+      if (deleteError) throw deleteError;
 
       toast.success("Usuário excluído com sucesso!");
       setUserToDelete(null);
