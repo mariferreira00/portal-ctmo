@@ -588,6 +588,7 @@ export type Database = {
         Args: { p_student_id: string }
         Returns: undefined
       }
+      get_student_id_from_user: { Args: { p_user_id: string }; Returns: string }
       get_training_streak: { Args: { p_student_id: string }; Returns: number }
       get_users_with_emails: {
         Args: never
