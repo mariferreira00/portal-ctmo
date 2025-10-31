@@ -131,6 +131,26 @@ export default function InstructorProfile() {
         return;
       }
 
+      // Validar senha atual fazendo re-autenticação
+      if (!user?.email) {
+        toast.error("Email do usuário não encontrado");
+        setChangingPassword(false);
+        return;
+      }
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: result.data.currentPassword,
+      });
+
+      if (signInError) {
+        setPasswordErrors({ currentPassword: "Senha atual incorreta" });
+        toast.error("Senha atual incorreta");
+        setChangingPassword(false);
+        return;
+      }
+
+      // Se a senha atual estiver correta, atualizar para a nova senha
       const { error } = await supabase.auth.updateUser({
         password: result.data.newPassword,
       });
