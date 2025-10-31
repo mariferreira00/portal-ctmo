@@ -605,6 +605,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      user_can_view_enrollment: {
+        Args: { _enrollment_student_id: string; _user_id: string }
+        Returns: boolean
+      }
+      user_can_view_student: {
+        Args: { _student_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "instructor" | "user"
