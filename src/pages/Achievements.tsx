@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Target, Calendar, Award, Crown } from "lucide-react";
+import { Trophy, Target, Calendar, Award, Crown, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -107,7 +107,16 @@ const Achievements = () => {
 
   const filteredAchievements = achievements.filter((achievement) => {
     if (activeCategory === "all") return true;
-    return achievement.category === activeCategory;
+    
+    // Mapear categorias em português para inglês
+    const categoryMap: { [key: string]: string } = {
+      "Presença": "attendance",
+      "Treino": "training",
+      "Marcos": "milestone",
+      "Sequência": "streak"
+    };
+    
+    return categoryMap[achievement.category] === activeCategory;
   });
 
   const completedCount = userAchievements.filter((ua) => ua.completed).length;
@@ -187,7 +196,7 @@ const Achievements = () => {
 
       {/* Achievements List */}
       <Tabs value={activeCategory} onValueChange={setActiveCategory}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="all" className="gap-2">
             <Trophy className="w-4 h-4" />
             <span className="hidden sm:inline">Todas</span>
@@ -203,6 +212,10 @@ const Achievements = () => {
           <TabsTrigger value="milestone" className="gap-2">
             <Award className="w-4 h-4" />
             <span className="hidden sm:inline">Marcos</span>
+          </TabsTrigger>
+          <TabsTrigger value="streak" className="gap-2">
+            <Flame className="w-4 h-4" />
+            <span className="hidden sm:inline">Sequência</span>
           </TabsTrigger>
         </TabsList>
 
