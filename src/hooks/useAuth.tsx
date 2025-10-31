@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 
                 navigate(teacher ? "/instructor-dashboard" : "/instructor-setup");
               } else {
+                // User or no role - treat as student
                 // Check if user has student profile
                 const { data: student } = await supabase
                   .from("students")
@@ -59,13 +60,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   .eq("user_id", session.user.id)
                   .maybeSingle();
                 
+                // If no role exists, create default "user" role
+                if (!roles || roles.length === 0) {
+                  await supabase
+                    .from("user_roles")
+                    .insert([{ user_id: session.user.id, role: "user" }]);
+                }
+                
                 navigate(student ? "/student-portal" : "/student-setup");
               }
             } catch (error) {
               console.error("Error checking user role:", error);
+              // Force logout on error
+              await supabase.auth.signOut();
               navigate("/");
             }
           }, 0);
+        }
+        
+        if (event === "SIGNED_OUT") {
+          setSession(null);
+          setUser(null);
+          navigate("/");
         }
       }
     );
