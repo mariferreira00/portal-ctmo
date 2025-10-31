@@ -3,9 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { Shield, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { toast } from "sonner";
 
@@ -50,6 +60,9 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const { signIn, signUp, user } = useAuth();
 
   useEffect(() => {
@@ -126,6 +139,36 @@ const Index = () => {
       toast.error(error.message || "Erro ao processar solicitação");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetLoading(true);
+
+    try {
+      const emailSchema = z.string().email("Email inválido");
+      const result = emailSchema.safeParse(resetEmail);
+
+      if (!result.success) {
+        toast.error("Por favor, insira um email válido");
+        setResetLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(result.data, {
+        redirectTo: `${window.location.origin}/`,
+      });
+
+      if (error) throw error;
+
+      toast.success("Email de redefinição enviado! Verifique sua caixa de entrada.");
+      setResetEmail("");
+      setResetDialogOpen(false);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao enviar email de redefinição");
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -214,12 +257,58 @@ const Index = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground">
-                  Senha
-                </Label>
-                <Input
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-foreground">
+                    Senha
+                  </Label>
+                  {!isSignUp && (
+                    <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+                      <DialogTrigger asChild>
+                        <button
+                          type="button"
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Esqueci minha senha
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Redefinir Senha</DialogTitle>
+                          <DialogDescription>
+                            Digite seu email para receber um link de redefinição de senha.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handlePasswordReset} className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="reset-email">Email</Label>
+                            <Input
+                              id="reset-email"
+                              type="email"
+                              placeholder="seu@email.com"
+                              value={resetEmail}
+                              onChange={(e) => setResetEmail(e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div className="flex justify-end gap-3">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setResetDialogOpen(false)}
+                            >
+                              Cancelar
+                            </Button>
+                            <Button type="submit" disabled={resetLoading}>
+                              {resetLoading ? "Enviando..." : "Enviar Email"}
+                            </Button>
+                          </div>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </div>
+                <PasswordInput
                   id="password"
-                  type="password"
                   placeholder="••••••••"
                   className={`bg-background border-border focus:border-primary ${
                     errors.password ? "border-destructive" : ""
