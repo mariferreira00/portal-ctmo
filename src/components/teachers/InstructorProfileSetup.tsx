@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { UserCircle } from "lucide-react";
+import { AvatarUpload } from "@/components/profile/AvatarUpload";
 
 interface InstructorProfileSetupProps {
   onComplete: () => void;
@@ -23,6 +24,8 @@ export function InstructorProfileSetup({ onComplete }: InstructorProfileSetupPro
     bio: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [teacherId, setTeacherId] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +36,7 @@ export function InstructorProfileSetup({ onComplete }: InstructorProfileSetupPro
         ? formData.specialties.split(",").map((s) => s.trim()).filter(Boolean)
         : [];
 
-      const { error } = await supabase.from("teachers").insert([
+      const { data, error } = await supabase.from("teachers").insert([
         {
           user_id: user?.id,
           full_name: formData.full_name,
@@ -41,10 +44,15 @@ export function InstructorProfileSetup({ onComplete }: InstructorProfileSetupPro
           phone: formData.phone || null,
           specialties: specialtiesArray.length > 0 ? specialtiesArray : null,
           bio: formData.bio || null,
+          avatar_url: avatarUrl,
         },
-      ]);
+      ]).select();
 
       if (error) throw error;
+
+      if (data && data[0]) {
+        setTeacherId(data[0].id);
+      }
 
       toast.success("Perfil de instrutor criado com sucesso!");
       onComplete();
@@ -61,9 +69,19 @@ export function InstructorProfileSetup({ onComplete }: InstructorProfileSetupPro
       <Card className="w-full max-w-2xl p-6 md:p-8">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-4">
-            <div className="p-4 bg-primary/10 rounded-full">
-              <UserCircle className="w-12 h-12 text-primary" />
-            </div>
+            {teacherId ? (
+              <AvatarUpload
+                currentAvatarUrl={avatarUrl}
+                userType="teachers"
+                userId={teacherId}
+                userName={formData.full_name}
+                onUploadComplete={(url) => setAvatarUrl(url)}
+              />
+            ) : (
+              <div className="p-4 bg-primary/10 rounded-full">
+                <UserCircle className="w-12 h-12 text-primary" />
+              </div>
+            )}
           </div>
           <h1 className="text-2xl md:text-3xl font-bold mb-2">
             Complete seu Perfil de Instrutor

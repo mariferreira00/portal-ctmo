@@ -12,6 +12,7 @@ import {
   Calendar,
   Trophy,
   Camera,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -218,6 +219,23 @@ function AppSidebar() {
                       >
                         <Camera className="w-5 h-5 shrink-0" />
                         {open && <span className="font-medium">Feed de Treinos</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to="/student-profile"
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
+                          location.pathname === "/student-profile"
+                            ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(0_84%_50%_/_0.3)]"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        )}
+                      >
+                        <User className="w-5 h-5 shrink-0" />
+                        {open && <span className="font-medium">Meu Perfil</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

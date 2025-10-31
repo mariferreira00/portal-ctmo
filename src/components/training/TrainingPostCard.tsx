@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface TrainingPostCardProps {
   post: TrainingPost;
@@ -59,11 +60,12 @@ export const TrainingPostCard = ({
       {/* Header */}
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-            <span className="text-primary font-bold">
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={post.student_avatar_url || undefined} alt={post.student_name} />
+            <AvatarFallback className="bg-primary/20 text-primary font-bold">
               {post.student_name?.[0]?.toUpperCase() || "?"}
-            </span>
-          </div>
+            </AvatarFallback>
+          </Avatar>
           <div>
             <p className="font-semibold text-foreground">{post.student_name}</p>
             <p className="text-xs text-muted-foreground">
@@ -99,18 +101,18 @@ export const TrainingPostCard = ({
       </div>
 
       {/* Image */}
-      <div className="relative bg-muted">
+      <div className="relative bg-muted aspect-square">
         {!imageLoaded && (
-          <div className="w-full aspect-square animate-pulse bg-muted" />
+          <div className="w-full h-full animate-pulse bg-muted" />
         )}
         <img
           src={post.thumbnail_url || post.photo_url}
           alt="Training photo"
-          className={`w-full aspect-square object-cover ${
+          className={`w-full h-full object-cover ${
             imageLoaded ? "block" : "hidden"
           }`}
           onLoad={() => setImageLoaded(true)}
-          loading="lazy"
+          onError={() => setImageLoaded(true)}
         />
       </div>
 

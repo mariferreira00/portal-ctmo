@@ -14,6 +14,7 @@ export interface TrainingPost {
   created_at: string;
   updated_at?: string;
   student_name?: string;
+  student_avatar_url?: string | null;
   reaction_count?: number;
   reactions_summary?: any;
 }

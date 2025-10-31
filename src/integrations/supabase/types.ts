@@ -242,6 +242,7 @@ export type Database = {
       students: {
         Row: {
           active: boolean
+          avatar_url: string | null
           birth_date: string | null
           created_at: string
           email: string
@@ -257,6 +258,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          avatar_url?: string | null
           birth_date?: string | null
           created_at?: string
           email: string
@@ -272,6 +274,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          avatar_url?: string | null
           birth_date?: string | null
           created_at?: string
           email?: string
@@ -289,6 +292,7 @@ export type Database = {
       }
       teachers: {
         Row: {
+          avatar_url: string | null
           bio: string | null
           created_at: string
           email: string
@@ -300,6 +304,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          avatar_url?: string | null
           bio?: string | null
           created_at?: string
           email: string
@@ -311,6 +316,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          avatar_url?: string | null
           bio?: string | null
           created_at?: string
           email?: string
@@ -433,6 +439,7 @@ export type Database = {
           photo_url: string | null
           reaction_count: number | null
           reactions_summary: Json | null
+          student_avatar_url: string | null
           student_id: string | null
           student_name: string | null
           thumbnail_url: string | null
