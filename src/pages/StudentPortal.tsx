@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Calendar, Users, Clock, Target } from "lucide-react";
+import { CheckCircle2, Calendar, Users, Clock, Target, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,6 +10,7 @@ import { StudentForm, StudentFormData } from "@/components/students/StudentForm"
 import { AchievementNotification } from "@/components/achievements/AchievementNotification";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 interface StudentProfile {
   id: string;
@@ -134,6 +135,7 @@ const StudentPortal = () => {
             id,
             name,
             schedule,
+            is_free,
             teachers (
               full_name
             )
@@ -214,12 +216,25 @@ const StudentPortal = () => {
     }
   }
 
-  async function handleEnroll(classId: string) {
+  async function handleEnroll(classId: string, isFree: boolean) {
+    if (!studentProfile) return;
+
+    // Check if student already has a regular enrollment
+    const hasRegularEnrollment = enrollments.some(
+      e => e.classes && !(e.classes as any).is_free
+    );
+
+    // If student has a regular enrollment and this class is not free, prevent enrollment
+    if (hasRegularEnrollment && !isFree) {
+      toast.error("Você já está matriculado em uma turma regular. Para matrículas adicionais, solicite na recepção.");
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from("class_enrollments")
         .insert([{
-          student_id: studentProfile?.id,
+          student_id: studentProfile.id,
           class_id: classId,
         }]);
 
@@ -227,8 +242,37 @@ const StudentPortal = () => {
 
       toast.success("Matrícula realizada com sucesso!");
       fetchEnrollments();
+      fetchAvailableClasses();
     } catch (error: any) {
       toast.error("Erro ao matricular");
+      console.error(error);
+    }
+  }
+
+  async function handleRequestEnrollment(classId: string, className: string) {
+    if (!studentProfile) return;
+
+    try {
+      const { error } = await supabase
+        .from("enrollment_requests")
+        .insert([{
+          student_id: studentProfile.id,
+          class_id: classId,
+          message: `Solicitação de matrícula adicional na turma ${className}`,
+        }]);
+
+      if (error) {
+        if (error.code === '23505') {
+          toast.error("Você já tem uma solicitação pendente para esta turma");
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      toast.success("Solicitação enviada! A administração entrará em contato em breve.");
+    } catch (error: any) {
+      toast.error("Erro ao enviar solicitação");
       console.error(error);
     }
   }
@@ -359,6 +403,11 @@ const StudentPortal = () => {
 
   const enrolledClassIds = enrollments.map(e => e.class_id);
   const unenrolledClasses = availableClasses.filter(c => !enrolledClassIds.includes(c.id));
+  
+  // Check if student has a regular (non-free) enrollment
+  const hasRegularEnrollment = enrollments.some(
+    e => e.classes && !(e.classes as any).is_free
+  );
 
   // Calculate next payment due date
   const getNextPaymentDate = () => {
@@ -545,25 +594,53 @@ const StudentPortal = () => {
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {unenrolledClasses.map((classItem) => (
-              <Card key={classItem.id} className="p-6">
-                <h3 className="font-semibold text-lg mb-2">{classItem.name}</h3>
-                <p className="text-sm text-muted-foreground mb-1">
-                  👨‍🏫 {classItem.teachers?.full_name || "Sem professor"}
-                </p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  📅 {classItem.schedule}
-                </p>
+            {unenrolledClasses.map((classItem) => {
+              const isFree = classItem.is_free;
+              const canEnroll = !hasRegularEnrollment || isFree;
 
-                <Button
-                  onClick={() => handleEnroll(classItem.id)}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Matricular-se
-                </Button>
-              </Card>
-            ))}
+              return (
+                <Card key={classItem.id} className="p-6">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-lg">{classItem.name}</h3>
+                    {isFree && (
+                      <Badge variant="secondary" className="text-xs">
+                        Livre
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    👨‍🏫 {classItem.teachers?.full_name || "Sem professor"}
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    📅 {classItem.schedule}
+                  </p>
+
+                  {canEnroll ? (
+                    <Button
+                      onClick={() => handleEnroll(classItem.id, isFree)}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      Matricular-se
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => handleRequestEnrollment(classItem.id, classItem.name)}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Bell className="w-4 h-4 mr-2" />
+                      Solicitar Matrícula
+                    </Button>
+                  )}
+                  {!canEnroll && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      Matrícula adicional requer aprovação
+                    </p>
+                  )}
+                </Card>
+              );
+            })}
           </div>
         </div>
       )}

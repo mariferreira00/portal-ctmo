@@ -136,6 +136,7 @@ export type Database = {
           active: boolean
           created_at: string
           id: string
+          is_free: boolean
           max_students: number
           name: string
           schedule: string
@@ -146,6 +147,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          is_free?: boolean
           max_students?: number
           name: string
           schedule: string
@@ -156,6 +158,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          is_free?: boolean
           max_students?: number
           name?: string
           schedule?: string
@@ -168,6 +171,57 @@ export type Database = {
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enrollment_requests: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+          message: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollment_requests_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_requests_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]

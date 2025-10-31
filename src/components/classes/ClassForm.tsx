@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ClassFormProps {
@@ -34,6 +35,7 @@ export interface ClassFormData {
   schedule: string;
   max_students: number;
   active?: boolean;
+  is_free?: boolean;
 }
 
 export function ClassForm({
@@ -45,11 +47,13 @@ export function ClassForm({
   isInstructor = false,
 }: ClassFormProps) {
   const [teachers, setTeachers] = useState<any[]>([]);
+  const [isFree, setIsFree] = useState(defaultValues?.is_free ?? false);
   const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm<ClassFormData>({
     defaultValues: {
       ...defaultValues,
       active: defaultValues?.active ?? true,
       max_students: defaultValues?.max_students ?? 20,
+      is_free: defaultValues?.is_free ?? false,
     },
   });
 
@@ -144,6 +148,20 @@ export function ClassForm({
             {errors.max_students && (
               <p className="text-sm text-destructive">{errors.max_students.message}</p>
             )}
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="is_free"
+              checked={isFree}
+              onCheckedChange={(checked) => {
+                setIsFree(checked as boolean);
+                setValue("is_free", checked as boolean);
+              }}
+            />
+            <Label htmlFor="is_free" className="cursor-pointer">
+              Turma Livre (sem cobrança adicional, permite múltiplas matrículas)
+            </Label>
           </div>
 
           <div className="flex justify-end gap-2">

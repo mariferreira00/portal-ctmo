@@ -25,6 +25,7 @@ import InstructorSetup from "./pages/InstructorSetup";
 import StudentSetup from "./pages/StudentSetup";
 import InstructorReports from "./pages/InstructorReports";
 import AdminReports from "./pages/AdminReports";
+import EnrollmentRequests from "./pages/EnrollmentRequests";
 import { GlobalAchievementNotifications } from "./components/GlobalAchievementNotifications";
 
 const queryClient = new QueryClient();
@@ -233,6 +234,16 @@ const App = () => (
                 <ProtectedRoute>
                   <Layout>
                     <AdminReports />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/enrollment-requests"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <EnrollmentRequests />
                   </Layout>
                 </ProtectedRoute>
               }
