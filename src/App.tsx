@@ -16,6 +16,7 @@ import Students from "./pages/Students";
 import Users from "./pages/Users";
 import StudentPortal from "./pages/StudentPortal";
 import StudentProfile from "./pages/StudentProfile";
+import InstructorProfile from "./pages/InstructorProfile";
 import Attendance from "./pages/Attendance";
 import Achievements from "./pages/Achievements";
 import TrainingFeed from "./pages/TrainingFeed";
@@ -174,6 +175,16 @@ const App = () => (
                 <ProtectedRoute>
                   <Layout>
                     <StudentProfile />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/instructor-profile"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <InstructorProfile />
                   </Layout>
                 </ProtectedRoute>
               }

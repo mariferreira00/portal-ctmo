@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Users, Calendar, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, Calendar, CheckCircle2, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface ClassWithEnrollments {
   id: string;
@@ -24,6 +26,7 @@ interface AttendanceRecord {
 
 const InstructorDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [classes, setClasses] = useState<ClassWithEnrollments[]>([]);
   const [recentAttendance, setRecentAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,9 +135,19 @@ const InstructorDashboard = () => {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <div>
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard do Instrutor</h1>
-        <p className="text-sm md:text-base text-muted-foreground">Gerencie suas turmas e acompanhe a frequência</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard do Instrutor</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Gerencie suas turmas e acompanhe a frequência</p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/instructor-profile")}
+          className="flex items-center gap-2"
+        >
+          <User className="w-4 h-4" />
+          Meu Perfil
+        </Button>
       </div>
 
       {/* Estatísticas */}
