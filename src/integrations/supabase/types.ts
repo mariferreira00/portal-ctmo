@@ -382,21 +382,24 @@ export type Database = {
           id: string
           post_id: string
           reaction_type: string
-          student_id: string
+          student_id: string | null
+          teacher_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           post_id: string
           reaction_type: string
-          student_id: string
+          student_id?: string | null
+          teacher_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           post_id?: string
           reaction_type?: string
-          student_id?: string
+          student_id?: string | null
+          teacher_id?: string | null
         }
         Relationships: [
           {
@@ -414,10 +417,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "post_reactions_student_id_fkey"
-            columns: ["student_id"]
+            foreignKeyName: "post_reactions_teacher_id_fkey"
+            columns: ["teacher_id"]
             isOneToOne: false
-            referencedRelation: "students"
+            referencedRelation: "teachers"
             referencedColumns: ["id"]
           },
         ]

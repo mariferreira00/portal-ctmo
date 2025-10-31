@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useUserRole } from "./useUserRole";
 import { toast } from "sonner";
 
 export interface TrainingPost {
@@ -29,15 +30,21 @@ export interface PostReaction {
 
 export function useTrainingPosts() {
   const { user } = useAuth();
+  const { isInstructor } = useUserRole();
   const [posts, setPosts] = useState<TrainingPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [studentId, setStudentId] = useState<string | null>(null);
+  const [teacherId, setTeacherId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
-      fetchStudentId();
+      if (isInstructor) {
+        fetchTeacherId();
+      } else {
+        fetchStudentId();
+      }
     }
-  }, [user]);
+  }, [user, isInstructor]);
 
   useEffect(() => {
     if (user) {
@@ -77,6 +84,21 @@ export function useTrainingPosts() {
       setStudentId(data?.id || null);
     } catch (error: any) {
       console.error("Error fetching student ID:", error);
+    }
+  }
+
+  async function fetchTeacherId() {
+    try {
+      const { data, error } = await supabase
+        .from("teachers")
+        .select("id")
+        .eq("user_id", user?.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setTeacherId(data?.id || null);
+    } catch (error: any) {
+      console.error("Error fetching teacher ID:", error);
     }
   }
 
@@ -206,19 +228,25 @@ export function useTrainingPosts() {
   }
 
   async function addReaction(postId: string, reactionType: string): Promise<boolean> {
-    if (!studentId) {
-      toast.error("Apenas alunos podem reagir aos posts");
+    if (!studentId && !teacherId) {
+      toast.error("Você precisa estar logado para reagir aos posts");
       return false;
     }
 
     try {
-      // Check if already reacted
-      const { data: existing } = await supabase
+      // Build query based on user type
+      let query = supabase
         .from("post_reactions")
         .select("id, reaction_type")
-        .eq("post_id", postId)
-        .eq("student_id", studentId)
-        .maybeSingle();
+        .eq("post_id", postId);
+
+      if (studentId) {
+        query = query.eq("student_id", studentId);
+      } else if (teacherId) {
+        query = query.eq("teacher_id", teacherId);
+      }
+
+      const { data: existing } = await query.maybeSingle();
 
       if (existing) {
         if (existing.reaction_type === reactionType) {
@@ -236,13 +264,20 @@ export function useTrainingPosts() {
         }
       } else {
         // Add new reaction
+        const insertData: any = {
+          post_id: postId,
+          reaction_type: reactionType,
+        };
+
+        if (studentId) {
+          insertData.student_id = studentId;
+        } else if (teacherId) {
+          insertData.teacher_id = teacherId;
+        }
+
         await supabase
           .from("post_reactions")
-          .insert({
-            post_id: postId,
-            student_id: studentId,
-            reaction_type: reactionType,
-          });
+          .insert(insertData);
       }
 
       await fetchPosts();
@@ -273,6 +308,7 @@ export function useTrainingPosts() {
     posts,
     loading,
     studentId,
+    teacherId,
     createPost,
     deletePost,
     addReaction,
