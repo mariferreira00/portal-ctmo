@@ -5,32 +5,39 @@ export interface TutorialStep {
   title: string;
   description: string;
   targetElement?: string;
+  action?: () => void;
+  navigationPath?: string;
 }
 
 const studentTutorial: TutorialStep[] = [
   {
     title: "Bem-vindo ao Portal do Aluno! 🥋",
     description: "Vamos fazer um tour rápido pelos principais recursos.",
+    navigationPath: "/student-portal",
   },
   {
     title: "Progresso Semanal",
     description: "Acompanhe suas presenças e defina sua meta.",
     targetElement: "[data-tutorial='weekly-progress']",
+    navigationPath: "/student-portal",
   },
   {
     title: "Suas Turmas",
     description: "Faça check-in aqui antes das aulas.",
     targetElement: "[data-tutorial='enrolled-classes']",
+    navigationPath: "/student-portal",
   },
   {
     title: "Feed de Treinos",
-    description: "Acesse pelo menu para ver fotos e posts.",
+    description: "Veja fotos e posts da sua turma aqui.",
     targetElement: "[data-tutorial='sidebar-training']",
+    navigationPath: "/training-feed",
   },
   {
     title: "Conquistas",
-    description: "Confira suas medalhas no menu.",
+    description: "Acompanhe suas medalhas e progresso.",
     targetElement: "[data-tutorial='sidebar-achievements']",
+    navigationPath: "/achievements",
   },
 ];
 
@@ -38,26 +45,31 @@ const instructorTutorial: TutorialStep[] = [
   {
     title: "Bem-vindo ao Painel do Instrutor! 👨‍🏫",
     description: "Tour rápido pelas suas ferramentas de gestão.",
+    navigationPath: "/instructor-dashboard",
   },
   {
     title: "Estatísticas",
     description: "Acompanhe turmas e presenças aqui.",
     targetElement: "[data-tutorial='stats']",
+    navigationPath: "/instructor-dashboard",
   },
   {
     title: "Suas Turmas",
     description: "Veja suas turmas e alunos matriculados.",
     targetElement: "[data-tutorial='instructor-classes']",
+    navigationPath: "/instructor-dashboard",
   },
   {
-    title: "Menu de Turmas",
-    description: "Acesse pelo menu para registrar presenças.",
+    title: "Gerenciar Turmas",
+    description: "Registre presenças e acompanhe alunos.",
     targetElement: "[data-tutorial='sidebar-classes']",
+    navigationPath: "/classes",
   },
   {
     title: "Feed de Treinos",
     description: "Poste fotos e interaja com alunos.",
     targetElement: "[data-tutorial='sidebar-training']",
+    navigationPath: "/training-feed",
   },
 ];
 
@@ -65,26 +77,31 @@ const adminTutorial: TutorialStep[] = [
   {
     title: "Bem-vindo ao Painel Admin! ⚙️",
     description: "Tour rápido pelas ferramentas de gestão.",
+    navigationPath: "/dashboard",
   },
   {
     title: "Estatísticas Gerais",
     description: "Visão geral de alunos, professores e turmas.",
     targetElement: "[data-tutorial='admin-stats']",
+    navigationPath: "/dashboard",
   },
   {
     title: "Gerenciar Usuários",
-    description: "Crie e gerencie contas no menu.",
+    description: "Crie e gerencie contas de usuários.",
     targetElement: "[data-tutorial='sidebar-users']",
+    navigationPath: "/users",
   },
   {
     title: "Turmas",
     description: "Organize turmas e matrículas.",
     targetElement: "[data-tutorial='sidebar-classes']",
+    navigationPath: "/classes",
   },
   {
     title: "Relatórios",
-    description: "Acesse relatórios completos no menu.",
+    description: "Acesse relatórios completos aqui.",
     targetElement: "[data-tutorial='sidebar-reports']",
+    navigationPath: "/admin-reports",
   },
 ];
 
@@ -127,7 +144,14 @@ export function useOnboarding(userRole: UserRole | null) {
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      const nextStepIndex = currentStep + 1;
+      setCurrentStep(nextStepIndex);
+      
+      // Execute action if exists
+      const nextStepData = steps[nextStepIndex];
+      if (nextStepData.action) {
+        setTimeout(() => nextStepData.action!(), 300);
+      }
     } else {
       skipTutorial();
     }

@@ -11,9 +11,7 @@ import { AchievementNotification } from "@/components/achievements/AchievementNo
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { useOnboarding } from "@/hooks/useOnboarding";
-import { TutorialTooltip } from "@/components/onboarding/TutorialTooltip";
-import { TutorialFloatingButton } from "@/components/onboarding/TutorialFloatingButton";
+import { TutorialManager } from "@/components/onboarding/TutorialManager";
 
 interface StudentProfile {
   id: string;
@@ -60,17 +58,6 @@ const StudentPortal = () => {
   const [newAchievement, setNewAchievement] = useState<NewAchievement | null>(null);
   const [editingGoal, setEditingGoal] = useState(false);
   const [tempGoal, setTempGoal] = useState<number>(3);
-
-  const {
-    showTutorial,
-    currentStep,
-    steps,
-    showFloatingButton,
-    nextStep,
-    previousStep,
-    skipTutorial,
-    restartTutorial,
-  } = useOnboarding("user");
 
   useEffect(() => {
     if (user) {
@@ -467,23 +454,7 @@ const StudentPortal = () => {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      {showFloatingButton && (
-        <TutorialFloatingButton onClick={restartTutorial} />
-      )}
-      
-      {showTutorial && steps[currentStep] && (
-        <TutorialTooltip
-          open={showTutorial}
-          currentStep={currentStep}
-          totalSteps={steps.length}
-          title={steps[currentStep].title}
-          description={steps[currentStep].description}
-          targetElement={steps[currentStep].targetElement}
-          onNext={nextStep}
-          onPrevious={previousStep}
-          onSkip={skipTutorial}
-        />
-      )}
+      <TutorialManager userRole="user" />
 
       {newAchievement && (
         <AchievementNotification

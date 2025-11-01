@@ -2,23 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Users, GraduationCap, UserCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useOnboarding } from "@/hooks/useOnboarding";
-import { TutorialTooltip } from "@/components/onboarding/TutorialTooltip";
-import { TutorialFloatingButton } from "@/components/onboarding/TutorialFloatingButton";
+import { TutorialManager } from "@/components/onboarding/TutorialManager";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({ students: 0, teachers: 0, classes: 0 });
-
-  const {
-    showTutorial,
-    currentStep,
-    steps,
-    showFloatingButton,
-    nextStep,
-    previousStep,
-    skipTutorial,
-    restartTutorial,
-  } = useOnboarding("admin");
 
   useEffect(() => {
     async function fetchStats() {
@@ -34,23 +21,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      {showFloatingButton && (
-        <TutorialFloatingButton onClick={restartTutorial} />
-      )}
-      
-      {showTutorial && steps[currentStep] && (
-        <TutorialTooltip
-          open={showTutorial}
-          currentStep={currentStep}
-          totalSteps={steps.length}
-          title={steps[currentStep].title}
-          description={steps[currentStep].description}
-          targetElement={steps[currentStep].targetElement}
-          onNext={nextStep}
-          onPrevious={previousStep}
-          onSkip={skipTutorial}
-        />
-      )}
+      <TutorialManager userRole="admin" />
 
       <div>
         <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard Portal CTMO</h1>
