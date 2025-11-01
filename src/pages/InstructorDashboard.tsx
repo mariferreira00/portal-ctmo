@@ -5,6 +5,9 @@ import { Users, Calendar, CheckCircle2, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import { TutorialDialog } from "@/components/onboarding/TutorialDialog";
+import { TutorialFloatingButton } from "@/components/onboarding/TutorialFloatingButton";
 
 interface ClassWithEnrollments {
   id: string;
@@ -30,6 +33,17 @@ const InstructorDashboard = () => {
   const [classes, setClasses] = useState<ClassWithEnrollments[]>([]);
   const [recentAttendance, setRecentAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const {
+    showTutorial,
+    currentStep,
+    steps,
+    showFloatingButton,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    restartTutorial,
+  } = useOnboarding("instructor");
 
   useEffect(() => {
     if (user) {
@@ -135,6 +149,23 @@ const InstructorDashboard = () => {
 
   return (
     <div className="space-y-6 md:space-y-8">
+      {showFloatingButton && (
+        <TutorialFloatingButton onClick={restartTutorial} />
+      )}
+      
+      {showTutorial && steps[currentStep] && (
+        <TutorialDialog
+          open={showTutorial}
+          currentStep={currentStep}
+          totalSteps={steps.length}
+          title={steps[currentStep].title}
+          description={steps[currentStep].description}
+          onNext={nextStep}
+          onPrevious={previousStep}
+          onSkip={skipTutorial}
+        />
+      )}
+
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard do Instrutor</h1>
