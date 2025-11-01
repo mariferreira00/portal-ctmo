@@ -66,20 +66,19 @@ export function TutorialTooltip({
 
   return (
     <>
-      {/* Semi-transparent backdrop */}
+      {/* Very subtle backdrop - only slight dimming */}
       <div 
-        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 transition-opacity"
-        onClick={onSkip}
+        className="fixed inset-0 bg-black/20 z-40 transition-opacity pointer-events-none"
       />
       
-      {/* Highlight target element */}
+      {/* Highlight target element with glow */}
       {targetElement && (() => {
         const element = document.querySelector(targetElement);
         if (element) {
           const rect = element.getBoundingClientRect();
           return (
             <div
-              className="fixed border-2 border-primary rounded-lg pointer-events-none z-[45] transition-all duration-300"
+              className="fixed border-2 border-primary rounded-lg pointer-events-none z-[45] transition-all duration-300 shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
               style={{
                 top: rect.top - 4,
                 left: rect.left - 4,
@@ -94,7 +93,7 @@ export function TutorialTooltip({
       
       {/* Compact tooltip */}
       <Card
-        className="fixed w-[calc(100vw-40px)] max-w-sm p-4 shadow-lg z-50 transition-all duration-300"
+        className="fixed w-[calc(100vw-40px)] max-w-sm p-4 shadow-2xl border-2 border-primary/20 z-50 transition-all duration-300 pointer-events-auto"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
