@@ -5,7 +5,6 @@ import { Users, Calendar, CheckCircle2, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { TutorialManager } from "@/components/onboarding/TutorialManager";
 
 interface ClassWithEnrollments {
   id: string;
@@ -136,8 +135,6 @@ const InstructorDashboard = () => {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <TutorialManager userRole="instructor" />
-
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard do Instrutor</h1>
@@ -154,7 +151,7 @@ const InstructorDashboard = () => {
       </div>
 
       {/* Estatísticas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" data-tutorial="stats">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <Card className="p-6 hover:border-primary transition-all">
           <div className="flex items-start justify-between">
             <div>
@@ -193,7 +190,7 @@ const InstructorDashboard = () => {
       </div>
 
       {/* Minhas Turmas */}
-      <div data-tutorial="instructor-classes">
+      <div>
         <h2 className="text-2xl font-semibold mb-4">Minhas Turmas</h2>
         {classes.length === 0 ? (
           <Card className="p-8 text-center">

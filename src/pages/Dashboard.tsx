@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Users, GraduationCap, UserCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { TutorialManager } from "@/components/onboarding/TutorialManager";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({ students: 0, teachers: 0, classes: 0 });
@@ -21,14 +20,12 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <TutorialManager userRole="admin" />
-
       <div>
         <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard Portal CTMO</h1>
         <p className="text-sm md:text-base text-muted-foreground">Visão geral do centro de treinamento</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" data-tutorial="admin-stats">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {[
           { title: "Total de Alunos", value: stats.students, icon: Users },
           { title: "Professores", value: stats.teachers, icon: GraduationCap },

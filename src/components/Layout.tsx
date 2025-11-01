@@ -97,22 +97,11 @@ function AppSidebar() {
                   {/* Admin sees all menu items */}
                   {navItems.map((item) => {
                     const isActive = location.pathname === item.href;
-                    let dataTutorial: string | undefined;
-                    
-                    // Map data-tutorial attributes for admin menu items
-                    switch(item.href) {
-                      case "/teachers": dataTutorial = "sidebar-teachers"; break;
-                      case "/classes": dataTutorial = "sidebar-classes"; break;
-                      case "/students": dataTutorial = "sidebar-students"; break;
-                      case "/attendance": dataTutorial = "sidebar-attendance"; break;
-                    }
-                    
                     return (
                       <SidebarMenuItem key={item.href}>
                         <SidebarMenuButton asChild>
                           <NavLink
                             to={item.href}
-                            data-tutorial={dataTutorial}
                             className={cn(
                               "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                               isActive
@@ -132,7 +121,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/users"
-                        data-tutorial="sidebar-users"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/users"
@@ -150,7 +138,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/admin-reports"
-                        data-tutorial="sidebar-reports"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/admin-reports"
@@ -168,7 +155,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/enrollment-requests"
-                        data-tutorial="sidebar-enrollment-requests"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/enrollment-requests"
@@ -186,7 +172,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/instructor-requests"
-                        data-tutorial="sidebar-instructor-requests"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/instructor-requests"
@@ -224,7 +209,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/classes"
-                        data-tutorial="sidebar-classes"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/classes"
@@ -242,7 +226,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/instructor-reports"
-                        data-tutorial="sidebar-instructor-reports"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/instructor-reports"
@@ -260,7 +243,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/training-feed"
-                        data-tutorial="sidebar-training"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/training-feed"
@@ -278,7 +260,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/instructor-profile"
-                        data-tutorial="sidebar-instructor-profile"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/instructor-profile"
@@ -316,7 +297,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/achievements"
-                        data-tutorial="sidebar-achievements"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/achievements"
@@ -334,7 +314,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/training-feed"
-                        data-tutorial="sidebar-training"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/training-feed"
@@ -352,7 +331,6 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/student-profile"
-                        data-tutorial="sidebar-profile"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/student-profile"

@@ -11,7 +11,6 @@ import { AchievementNotification } from "@/components/achievements/AchievementNo
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { TutorialManager } from "@/components/onboarding/TutorialManager";
 
 interface StudentProfile {
   id: string;
@@ -454,8 +453,6 @@ const StudentPortal = () => {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <TutorialManager userRole="user" />
-
       {newAchievement && (
         <AchievementNotification
           achievement={newAchievement}
@@ -490,7 +487,7 @@ const StudentPortal = () => {
       )}
 
       {/* Weekly Goal Configuration */}
-      <Card className="p-6 bg-card border-border" data-tutorial="weekly-progress">
+      <Card className="p-6 bg-card border-border">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />
@@ -559,7 +556,7 @@ const StudentPortal = () => {
       />
 
       {/* Minhas Turmas */}
-      <div data-tutorial="enrolled-classes">
+      <div>
         <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
           <Users className="w-6 h-6" />
           Minhas Turmas
