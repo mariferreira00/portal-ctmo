@@ -4,75 +4,87 @@ import { UserRole } from "./useUserRole";
 export interface TutorialStep {
   title: string;
   description: string;
-  target?: string;
+  targetElement?: string;
 }
 
 const studentTutorial: TutorialStep[] = [
   {
     title: "Bem-vindo ao Portal do Aluno! 🥋",
-    description: "Vamos fazer um tour rápido para você conhecer todos os recursos disponíveis.",
+    description: "Vamos fazer um tour rápido pelos principais recursos.",
   },
   {
     title: "Progresso Semanal",
-    description: "Aqui você acompanha suas presenças na semana e pode definir sua meta pessoal de treinos.",
+    description: "Acompanhe suas presenças e defina sua meta.",
+    targetElement: "[data-tutorial='weekly-progress']",
+  },
+  {
+    title: "Suas Turmas",
+    description: "Faça check-in aqui antes das aulas.",
+    targetElement: "[data-tutorial='enrolled-classes']",
   },
   {
     title: "Feed de Treinos",
-    description: "Veja as fotos e posts de treinos da sua turma, comente e reaja às postagens.",
+    description: "Acesse pelo menu para ver fotos e posts.",
+    targetElement: "[data-tutorial='sidebar-training']",
   },
   {
     title: "Conquistas",
-    description: "Acompanhe suas conquistas e desbloqueie novas medalhas conforme você treina!",
-  },
-  {
-    title: "Seu Perfil",
-    description: "No menu lateral você pode acessar e editar suas informações pessoais.",
+    description: "Confira suas medalhas no menu.",
+    targetElement: "[data-tutorial='sidebar-achievements']",
   },
 ];
 
 const instructorTutorial: TutorialStep[] = [
   {
     title: "Bem-vindo ao Painel do Instrutor! 👨‍🏫",
-    description: "Vamos conhecer as ferramentas disponíveis para você gerenciar suas turmas.",
+    description: "Tour rápido pelas suas ferramentas de gestão.",
   },
   {
-    title: "Visão Geral",
-    description: "Aqui você vê estatísticas das suas turmas, presenças recentes e muito mais.",
+    title: "Estatísticas",
+    description: "Acompanhe turmas e presenças aqui.",
+    targetElement: "[data-tutorial='stats']",
   },
   {
-    title: "Gerenciar Turmas",
-    description: "Acesse suas turmas pelo menu lateral para registrar presenças e acompanhar alunos.",
+    title: "Suas Turmas",
+    description: "Veja suas turmas e alunos matriculados.",
+    targetElement: "[data-tutorial='instructor-classes']",
+  },
+  {
+    title: "Menu de Turmas",
+    description: "Acesse pelo menu para registrar presenças.",
+    targetElement: "[data-tutorial='sidebar-classes']",
   },
   {
     title: "Feed de Treinos",
-    description: "Poste fotos dos treinos, acompanhe as publicações e interaja com seus alunos.",
-  },
-  {
-    title: "Relatórios",
-    description: "Acesse relatórios detalhados de frequência e desempenho dos seus alunos.",
+    description: "Poste fotos e interaja com alunos.",
+    targetElement: "[data-tutorial='sidebar-training']",
   },
 ];
 
 const adminTutorial: TutorialStep[] = [
   {
-    title: "Bem-vindo ao Painel Administrativo! ⚙️",
-    description: "Aqui você tem controle total sobre o sistema e todos os usuários.",
+    title: "Bem-vindo ao Painel Admin! ⚙️",
+    description: "Tour rápido pelas ferramentas de gestão.",
+  },
+  {
+    title: "Estatísticas Gerais",
+    description: "Visão geral de alunos, professores e turmas.",
+    targetElement: "[data-tutorial='admin-stats']",
   },
   {
     title: "Gerenciar Usuários",
-    description: "Crie e gerencie contas de alunos, instrutores e outros administradores.",
+    description: "Crie e gerencie contas no menu.",
+    targetElement: "[data-tutorial='sidebar-users']",
   },
   {
-    title: "Turmas e Matrículas",
-    description: "Organize turmas, horários e gerencie matrículas de alunos.",
+    title: "Turmas",
+    description: "Organize turmas e matrículas.",
+    targetElement: "[data-tutorial='sidebar-classes']",
   },
   {
-    title: "Relatórios Completos",
-    description: "Acesse relatórios financeiros, de frequência e estatísticas gerais do sistema.",
-  },
-  {
-    title: "Configurações",
-    description: "Configure opções gerais do sistema e personalize o funcionamento da plataforma.",
+    title: "Relatórios",
+    description: "Acesse relatórios completos no menu.",
+    targetElement: "[data-tutorial='sidebar-reports']",
   },
 ];
 

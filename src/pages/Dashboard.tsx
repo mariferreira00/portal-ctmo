@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Users, GraduationCap, UserCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import { TutorialDialog } from "@/components/onboarding/TutorialDialog";
+import { TutorialTooltip } from "@/components/onboarding/TutorialTooltip";
 import { TutorialFloatingButton } from "@/components/onboarding/TutorialFloatingButton";
 
 const Dashboard = () => {
@@ -39,12 +39,13 @@ const Dashboard = () => {
       )}
       
       {showTutorial && steps[currentStep] && (
-        <TutorialDialog
+        <TutorialTooltip
           open={showTutorial}
           currentStep={currentStep}
           totalSteps={steps.length}
           title={steps[currentStep].title}
           description={steps[currentStep].description}
+          targetElement={steps[currentStep].targetElement}
           onNext={nextStep}
           onPrevious={previousStep}
           onSkip={skipTutorial}
@@ -56,7 +57,7 @@ const Dashboard = () => {
         <p className="text-sm md:text-base text-muted-foreground">Visão geral do centro de treinamento</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" data-tutorial="admin-stats">
         {[
           { title: "Total de Alunos", value: stats.students, icon: Users },
           { title: "Professores", value: stats.teachers, icon: GraduationCap },

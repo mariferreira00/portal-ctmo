@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import { TutorialDialog } from "@/components/onboarding/TutorialDialog";
+import { TutorialTooltip } from "@/components/onboarding/TutorialTooltip";
 import { TutorialFloatingButton } from "@/components/onboarding/TutorialFloatingButton";
 
 interface ClassWithEnrollments {
@@ -154,12 +154,13 @@ const InstructorDashboard = () => {
       )}
       
       {showTutorial && steps[currentStep] && (
-        <TutorialDialog
+        <TutorialTooltip
           open={showTutorial}
           currentStep={currentStep}
           totalSteps={steps.length}
           title={steps[currentStep].title}
           description={steps[currentStep].description}
+          targetElement={steps[currentStep].targetElement}
           onNext={nextStep}
           onPrevious={previousStep}
           onSkip={skipTutorial}
@@ -182,7 +183,7 @@ const InstructorDashboard = () => {
       </div>
 
       {/* Estatísticas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" data-tutorial="stats">
         <Card className="p-6 hover:border-primary transition-all">
           <div className="flex items-start justify-between">
             <div>
@@ -221,7 +222,7 @@ const InstructorDashboard = () => {
       </div>
 
       {/* Minhas Turmas */}
-      <div>
+      <div data-tutorial="instructor-classes">
         <h2 className="text-2xl font-semibold mb-4">Minhas Turmas</h2>
         {classes.length === 0 ? (
           <Card className="p-8 text-center">

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import { TutorialDialog } from "@/components/onboarding/TutorialDialog";
+import { TutorialTooltip } from "@/components/onboarding/TutorialTooltip";
 import { TutorialFloatingButton } from "@/components/onboarding/TutorialFloatingButton";
 
 interface StudentProfile {
@@ -472,12 +472,13 @@ const StudentPortal = () => {
       )}
       
       {showTutorial && steps[currentStep] && (
-        <TutorialDialog
+        <TutorialTooltip
           open={showTutorial}
           currentStep={currentStep}
           totalSteps={steps.length}
           title={steps[currentStep].title}
           description={steps[currentStep].description}
+          targetElement={steps[currentStep].targetElement}
           onNext={nextStep}
           onPrevious={previousStep}
           onSkip={skipTutorial}
@@ -518,7 +519,7 @@ const StudentPortal = () => {
       )}
 
       {/* Weekly Goal Configuration */}
-      <Card className="p-6 bg-card border-border">
+      <Card className="p-6 bg-card border-border" data-tutorial="weekly-progress">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />
@@ -587,7 +588,7 @@ const StudentPortal = () => {
       />
 
       {/* Minhas Turmas */}
-      <div>
+      <div data-tutorial="enrolled-classes">
         <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
           <Users className="w-6 h-6" />
           Minhas Turmas
