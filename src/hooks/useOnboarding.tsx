@@ -12,26 +12,20 @@ export interface TutorialStep {
 const studentTutorial: TutorialStep[] = [
   {
     title: "Bem-vindo ao Portal do Aluno! 🥋",
-    description: "Vamos fazer um tour rápido pelos principais recursos.",
+    description: "Vamos fazer um tour completo pelos recursos.",
     navigationPath: "/student-portal",
   },
   {
-    title: "Progresso Semanal",
-    description: "Acompanhe suas presenças e defina sua meta.",
+    title: "Meu Portal",
+    description: "Sua página inicial com progresso semanal.",
     targetElement: "[data-tutorial='weekly-progress']",
     navigationPath: "/student-portal",
   },
   {
-    title: "Suas Turmas",
-    description: "Faça check-in aqui antes das aulas.",
+    title: "Check-in nas Turmas",
+    description: "Faça check-in antes das aulas.",
     targetElement: "[data-tutorial='enrolled-classes']",
     navigationPath: "/student-portal",
-  },
-  {
-    title: "Feed de Treinos",
-    description: "Veja fotos e posts da sua turma aqui.",
-    targetElement: "[data-tutorial='sidebar-training']",
-    navigationPath: "/training-feed",
   },
   {
     title: "Conquistas",
@@ -39,31 +33,49 @@ const studentTutorial: TutorialStep[] = [
     targetElement: "[data-tutorial='sidebar-achievements']",
     navigationPath: "/achievements",
   },
+  {
+    title: "Feed de Treinos",
+    description: "Veja fotos e interaja com sua turma.",
+    targetElement: "[data-tutorial='sidebar-training']",
+    navigationPath: "/training-feed",
+  },
+  {
+    title: "Meu Perfil",
+    description: "Gerencie suas informações pessoais.",
+    targetElement: "[data-tutorial='sidebar-profile']",
+    navigationPath: "/student-profile",
+  },
 ];
 
 const instructorTutorial: TutorialStep[] = [
   {
     title: "Bem-vindo ao Painel do Instrutor! 👨‍🏫",
-    description: "Tour rápido pelas suas ferramentas de gestão.",
+    description: "Tour completo pelas ferramentas de gestão.",
     navigationPath: "/instructor-dashboard",
   },
   {
-    title: "Estatísticas",
-    description: "Acompanhe turmas e presenças aqui.",
+    title: "Dashboard",
+    description: "Visão geral das suas turmas e alunos.",
     targetElement: "[data-tutorial='stats']",
     navigationPath: "/instructor-dashboard",
   },
   {
-    title: "Suas Turmas",
-    description: "Veja suas turmas e alunos matriculados.",
+    title: "Suas Turmas Resumo",
+    description: "Veja o resumo das suas turmas.",
     targetElement: "[data-tutorial='instructor-classes']",
     navigationPath: "/instructor-dashboard",
   },
   {
-    title: "Gerenciar Turmas",
-    description: "Registre presenças e acompanhe alunos.",
+    title: "Minhas Turmas",
+    description: "Registre presenças e gerencie alunos.",
     targetElement: "[data-tutorial='sidebar-classes']",
     navigationPath: "/classes",
+  },
+  {
+    title: "Relatórios",
+    description: "Acesse relatórios de frequência.",
+    targetElement: "[data-tutorial='sidebar-instructor-reports']",
+    navigationPath: "/instructor-reports",
   },
   {
     title: "Feed de Treinos",
@@ -71,37 +83,73 @@ const instructorTutorial: TutorialStep[] = [
     targetElement: "[data-tutorial='sidebar-training']",
     navigationPath: "/training-feed",
   },
+  {
+    title: "Meu Perfil",
+    description: "Gerencie suas informações.",
+    targetElement: "[data-tutorial='sidebar-instructor-profile']",
+    navigationPath: "/instructor-profile",
+  },
 ];
 
 const adminTutorial: TutorialStep[] = [
   {
     title: "Bem-vindo ao Painel Admin! ⚙️",
-    description: "Tour rápido pelas ferramentas de gestão.",
+    description: "Tour completo pelas ferramentas.",
     navigationPath: "/dashboard",
   },
   {
-    title: "Estatísticas Gerais",
-    description: "Visão geral de alunos, professores e turmas.",
+    title: "Dashboard",
+    description: "Estatísticas gerais do sistema.",
     targetElement: "[data-tutorial='admin-stats']",
     navigationPath: "/dashboard",
   },
   {
-    title: "Gerenciar Usuários",
-    description: "Crie e gerencie contas de usuários.",
-    targetElement: "[data-tutorial='sidebar-users']",
-    navigationPath: "/users",
+    title: "Professores",
+    description: "Gerencie o cadastro de professores.",
+    targetElement: "[data-tutorial='sidebar-teachers']",
+    navigationPath: "/teachers",
   },
   {
     title: "Turmas",
-    description: "Organize turmas e matrículas.",
+    description: "Crie e organize turmas.",
     targetElement: "[data-tutorial='sidebar-classes']",
     navigationPath: "/classes",
   },
   {
+    title: "Alunos",
+    description: "Gerencie o cadastro de alunos.",
+    targetElement: "[data-tutorial='sidebar-students']",
+    navigationPath: "/students",
+  },
+  {
+    title: "Frequência",
+    description: "Acompanhe a frequência geral.",
+    targetElement: "[data-tutorial='sidebar-attendance']",
+    navigationPath: "/attendance",
+  },
+  {
+    title: "Usuários",
+    description: "Gerencie permissões de usuários.",
+    targetElement: "[data-tutorial='sidebar-users']",
+    navigationPath: "/users",
+  },
+  {
     title: "Relatórios",
-    description: "Acesse relatórios completos aqui.",
+    description: "Relatórios completos e análises.",
     targetElement: "[data-tutorial='sidebar-reports']",
     navigationPath: "/admin-reports",
+  },
+  {
+    title: "Solicitações de Turma",
+    description: "Gerencie solicitações de matrículas.",
+    targetElement: "[data-tutorial='sidebar-enrollment-requests']",
+    navigationPath: "/enrollment-requests",
+  },
+  {
+    title: "Solicitações de Instrutor",
+    description: "Aprove novos instrutores.",
+    targetElement: "[data-tutorial='sidebar-instructor-requests']",
+    navigationPath: "/instructor-requests",
   },
 ];
 

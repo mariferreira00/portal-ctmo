@@ -97,7 +97,16 @@ function AppSidebar() {
                   {/* Admin sees all menu items */}
                   {navItems.map((item) => {
                     const isActive = location.pathname === item.href;
-                    const dataTutorial = item.href === "/classes" ? "sidebar-classes" : undefined;
+                    let dataTutorial: string | undefined;
+                    
+                    // Map data-tutorial attributes for admin menu items
+                    switch(item.href) {
+                      case "/teachers": dataTutorial = "sidebar-teachers"; break;
+                      case "/classes": dataTutorial = "sidebar-classes"; break;
+                      case "/students": dataTutorial = "sidebar-students"; break;
+                      case "/attendance": dataTutorial = "sidebar-attendance"; break;
+                    }
+                    
                     return (
                       <SidebarMenuItem key={item.href}>
                         <SidebarMenuButton asChild>
@@ -159,6 +168,7 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/enrollment-requests"
+                        data-tutorial="sidebar-enrollment-requests"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/enrollment-requests"
@@ -176,6 +186,7 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/instructor-requests"
+                        data-tutorial="sidebar-instructor-requests"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/instructor-requests"
@@ -231,6 +242,7 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/instructor-reports"
+                        data-tutorial="sidebar-instructor-reports"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/instructor-reports"
@@ -258,6 +270,24 @@ function AppSidebar() {
                       >
                         <Camera className="w-5 h-5 shrink-0" />
                         {open && <span className="font-medium">Feed Treinos</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to="/instructor-profile"
+                        data-tutorial="sidebar-instructor-profile"
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
+                          location.pathname === "/instructor-profile"
+                            ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(0_84%_50%_/_0.3)]"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        )}
+                      >
+                        <User className="w-5 h-5 shrink-0" />
+                        {open && <span className="font-medium">Meu Perfil</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -322,6 +352,7 @@ function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/student-profile"
+                        data-tutorial="sidebar-profile"
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
                           location.pathname === "/student-profile"
