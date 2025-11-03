@@ -25,7 +25,9 @@ interface ClassPerformance {
   class_name: string;
   total_students: number;
   avg_attendance_rate: number;
+  weekly_attendance_rate: number;
   total_checkins: number;
+  weekly_checkins: number;
   instructor_name: string;
 }
 
@@ -108,30 +110,51 @@ const AdminReports = () => {
 
           const totalStudents = enrollments?.length || 0;
 
-          // Get check-ins for last 30 days
+          // Get check-ins for last 30 days (monthly)
           const thirtyDaysAgo = new Date();
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-          const { data: checkins } = await supabase
+          const { data: checkinsMonthly } = await supabase
             .from("attendance")
             .select("student_id")
             .eq("class_id", classItem.id)
             .gte("checked_in_at", thirtyDaysAgo.toISOString());
 
-          const totalCheckins = checkins?.length || 0;
+          const totalCheckinsMonthly = checkinsMonthly?.length || 0;
           
-          // Calculate attendance rate based on enrolled students only
-          // Assuming 12 possible training days in 30 days per student
-          const expectedCheckins = totalStudents * 12;
-          const avgAttendanceRate = expectedCheckins > 0 
-            ? (totalCheckins / expectedCheckins) * 100 
+          // Get check-ins for last 7 days (weekly)
+          const sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+          const { data: checkinsWeekly } = await supabase
+            .from("attendance")
+            .select("student_id")
+            .eq("class_id", classItem.id)
+            .gte("checked_in_at", sevenDaysAgo.toISOString());
+
+          const totalCheckinsWeekly = checkinsWeekly?.length || 0;
+          
+          // Calculate attendance rates based on enrolled students only
+          // Monthly: 10 treinos esperados por aluno/mês
+          // Weekly: 2.5 treinos esperados por aluno/semana (10/4)
+          const expectedCheckinsMonthly = totalStudents * 10;
+          const expectedCheckinsWeekly = totalStudents * 2.5;
+          
+          const monthlyAttendanceRate = expectedCheckinsMonthly > 0 
+            ? (totalCheckinsMonthly / expectedCheckinsMonthly) * 100 
+            : 0;
+            
+          const weeklyAttendanceRate = expectedCheckinsWeekly > 0 
+            ? (totalCheckinsWeekly / expectedCheckinsWeekly) * 100 
             : 0;
 
           performanceData.push({
             class_name: classItem.name,
             total_students: totalStudents,
-            avg_attendance_rate: Math.round(avgAttendanceRate),
-            total_checkins: totalCheckins,
+            avg_attendance_rate: Math.round(monthlyAttendanceRate),
+            weekly_attendance_rate: Math.round(weeklyAttendanceRate),
+            total_checkins: totalCheckinsMonthly,
+            weekly_checkins: totalCheckinsWeekly,
             instructor_name: (classItem.teachers as any)?.full_name || "N/A"
           });
         }
@@ -367,13 +390,19 @@ const AdminReports = () => {
               <div key={index} className="p-4 bg-muted rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold">{cls.class_name}</h3>
-                  <Badge variant={cls.avg_attendance_rate >= 70 ? 'default' : 'secondary'}>
-                    {cls.avg_attendance_rate}% frequência
-                  </Badge>
+                  <div className="flex gap-2">
+                    <Badge variant={cls.weekly_attendance_rate >= 70 ? 'default' : 'secondary'}>
+                      Sem: {cls.weekly_attendance_rate}%
+                    </Badge>
+                    <Badge variant={cls.avg_attendance_rate >= 70 ? 'default' : 'secondary'}>
+                      Mês: {cls.avg_attendance_rate}%
+                    </Badge>
+                  </div>
                 </div>
                 <div className="text-sm text-muted-foreground space-y-1">
                   <p>Instrutor: {cls.instructor_name}</p>
-                  <p>Alunos: {cls.total_students} • Check-ins: {cls.total_checkins}</p>
+                  <p>Alunos: {cls.total_students}</p>
+                  <p>Check-ins: {cls.weekly_checkins} (7d) • {cls.total_checkins} (30d)</p>
                 </div>
               </div>
             ))}

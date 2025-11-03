@@ -126,8 +126,8 @@ const InstructorReports = () => {
           daysSinceCheckin = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
 
-        // Calculate attendance rate (assuming 12 possible training days in 30 days)
-        const attendanceRate = (totalCheckins / 12) * 100;
+        // Calculate attendance rate (10 treinos esperados em 30 dias)
+        const attendanceRate = (totalCheckins / 10) * 100;
 
         // Determine risk level
         let riskLevel: 'low' | 'medium' | 'high' = 'low';
