@@ -119,8 +119,12 @@ const AdminReports = () => {
             .gte("checked_in_at", thirtyDaysAgo.toISOString());
 
           const totalCheckins = checkins?.length || 0;
-          const avgAttendanceRate = totalStudents > 0 
-            ? (totalCheckins / (totalStudents * 12)) * 100 
+          
+          // Calculate attendance rate based on enrolled students only
+          // Assuming 12 possible training days in 30 days per student
+          const expectedCheckins = totalStudents * 12;
+          const avgAttendanceRate = expectedCheckins > 0 
+            ? (totalCheckins / expectedCheckins) * 100 
             : 0;
 
           performanceData.push({
