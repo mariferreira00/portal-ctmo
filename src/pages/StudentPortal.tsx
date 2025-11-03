@@ -65,7 +65,7 @@ const StudentPortal = () => {
   const [setupMode, setSetupMode] = useState(false);
   const [newAchievement, setNewAchievement] = useState<NewAchievement | null>(null);
   const [editingGoal, setEditingGoal] = useState(false);
-  const [tempGoal, setTempGoal] = useState<number>(3);
+  const [tempGoal, setTempGoal] = useState<string>('3');
   const [subclassDialogOpen, setSubclassDialogOpen] = useState(false);
   const [selectedClassForCheckIn, setSelectedClassForCheckIn] = useState<{ id: string; schedule: string } | null>(null);
   const [subclasses, setSubclasses] = useState<Subclass[]>([]);
@@ -97,7 +97,7 @@ const StudentPortal = () => {
 
       if (data) {
         setStudentProfile(data);
-        setTempGoal(data.weekly_goal);
+        setTempGoal(data.weekly_goal.toString());
       } else {
         setSetupMode(true);
       }
@@ -507,7 +507,9 @@ const StudentPortal = () => {
   async function handleUpdateGoal() {
     if (!studentProfile) return;
     
-    if (tempGoal < 1 || tempGoal > 7) {
+    const goalValue = parseInt(tempGoal);
+    
+    if (isNaN(goalValue) || goalValue < 1 || goalValue > 7) {
       toast.error("A meta deve ser entre 1 e 7 treinos");
       return;
     }
@@ -515,12 +517,12 @@ const StudentPortal = () => {
     try {
       const { error } = await supabase
         .from("students")
-        .update({ weekly_goal: tempGoal })
+        .update({ weekly_goal: goalValue })
         .eq("id", studentProfile.id);
 
       if (error) throw error;
 
-      setStudentProfile({ ...studentProfile, weekly_goal: tempGoal });
+      setStudentProfile({ ...studentProfile, weekly_goal: goalValue });
       setEditingGoal(false);
       toast.success("Meta semanal atualizada!");
     } catch (error: any) {
@@ -660,17 +662,7 @@ const StudentPortal = () => {
                 min="1"
                 max="7"
                 value={tempGoal}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === '') {
-                    setTempGoal(1);
-                  } else {
-                    const numValue = parseInt(value);
-                    if (!isNaN(numValue)) {
-                      setTempGoal(numValue);
-                    }
-                  }
-                }}
+                onChange={(e) => setTempGoal(e.target.value)}
                 className="mt-2"
               />
               <p className="text-sm text-muted-foreground mt-2">
@@ -685,7 +677,7 @@ const StudentPortal = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setTempGoal(studentProfile?.weekly_goal || defaultWeeklyGoal);
+                  setTempGoal((studentProfile?.weekly_goal || defaultWeeklyGoal).toString());
                   setEditingGoal(false);
                 }}
               >
