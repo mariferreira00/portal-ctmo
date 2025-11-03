@@ -13,6 +13,7 @@ import {
   AlertCircle, CheckCircle2, ArrowLeft, Calendar 
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getBrasiliaTime } from "@/lib/timezone";
 
 interface FinancialSummary {
   total_monthly_revenue: number;
@@ -70,7 +71,7 @@ const AdminReports = () => {
         const avgFee = totalRevenue / students.length;
         
         // Calculate potential defaulters (students with payment due in next 7 days)
-        const today = new Date().getDate();
+        const today = getBrasiliaTime().getDate();
         const potentialDefaulters = students.filter(s => {
           if (!s.payment_due_day) return false;
           const daysUntilDue = s.payment_due_day - today;
@@ -111,7 +112,7 @@ const AdminReports = () => {
           const totalStudents = enrollments?.length || 0;
 
           // Get check-ins for last 30 days (monthly)
-          const thirtyDaysAgo = new Date();
+          const thirtyDaysAgo = getBrasiliaTime();
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
           const { data: checkinsMonthly } = await supabase
@@ -123,7 +124,7 @@ const AdminReports = () => {
           const totalCheckinsMonthly = checkinsMonthly?.length || 0;
           
           // Get check-ins for last 7 days (weekly)
-          const sevenDaysAgo = new Date();
+          const sevenDaysAgo = getBrasiliaTime();
           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
           const { data: checkinsWeekly } = await supabase
@@ -165,7 +166,7 @@ const AdminReports = () => {
       // Retention Data (last 6 months)
       const retentionDataArray: RetentionData[] = [];
       for (let i = 5; i >= 0; i--) {
-        const monthStart = new Date();
+        const monthStart = getBrasiliaTime();
         monthStart.setMonth(monthStart.getMonth() - i);
         monthStart.setDate(1);
         
@@ -213,7 +214,7 @@ const AdminReports = () => {
         .select("id")
         .eq("active", true);
 
-      const thirtyDaysAgo = new Date();
+      const thirtyDaysAgo = getBrasiliaTime();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       let veryActive = 0;

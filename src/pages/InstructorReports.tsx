@@ -13,6 +13,7 @@ import {
   Users, Activity, ArrowLeft 
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getBrasiliaTime } from "@/lib/timezone";
 
 interface StudentStats {
   id: string;
@@ -90,7 +91,7 @@ const InstructorReports = () => {
         .in("class_id", classIds);
 
       // Calculate stats for each student
-      const thirtyDaysAgo = new Date();
+      const thirtyDaysAgo = getBrasiliaTime();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const stats: StudentStats[] = [];
@@ -122,7 +123,7 @@ const InstructorReports = () => {
         
         let daysSinceCheckin = null;
         if (lastCheckin) {
-          const diffTime = Math.abs(new Date().getTime() - new Date(lastCheckin).getTime());
+          const diffTime = Math.abs(getBrasiliaTime().getTime() - new Date(lastCheckin).getTime());
           daysSinceCheckin = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
 
@@ -175,7 +176,7 @@ const InstructorReports = () => {
       // Get weekly trend (last 8 weeks)
       const weeklyData = [];
       for (let i = 7; i >= 0; i--) {
-        const weekStart = new Date();
+        const weekStart = getBrasiliaTime();
         weekStart.setDate(weekStart.getDate() - (i * 7));
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 7);

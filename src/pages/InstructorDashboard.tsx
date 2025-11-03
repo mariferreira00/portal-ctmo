@@ -5,6 +5,7 @@ import { Users, Calendar, CheckCircle2, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { getBrasiliaTime } from "@/lib/timezone";
 
 interface ClassWithEnrollments {
   id: string;
@@ -83,7 +84,7 @@ const InstructorDashboard = () => {
       const classIds = formattedClasses.map(c => c.id);
       
       if (classIds.length > 0) {
-        const sevenDaysAgo = new Date();
+        const sevenDaysAgo = getBrasiliaTime();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
         const { data: attendanceData, error: attendanceError } = await supabase

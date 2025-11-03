@@ -11,6 +11,7 @@ import { AchievementNotification } from "@/components/achievements/AchievementNo
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { getBrasiliaTime, getTodayStartBrasilia, getCurrentDayOfWeekBrasilia, getCurrentTimeBrasilia } from "@/lib/timezone";
 
 interface StudentProfile {
   id: string;
@@ -172,12 +173,12 @@ const StudentPortal = () => {
 
   async function fetchTodayAttendance() {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const todayStart = getTodayStartBrasilia().toISOString();
       const { data, error } = await supabase
         .from("attendance")
         .select("class_id, checked_in_at")
         .eq("student_id", studentProfile?.id)
-        .gte("checked_in_at", today);
+        .gte("checked_in_at", todayStart);
 
       if (error) throw error;
       setTodayAttendance(data || []);
@@ -190,7 +191,7 @@ const StudentPortal = () => {
     if (!studentProfile) return;
 
     try {
-      const sevenDaysAgo = new Date();
+      const sevenDaysAgo = getBrasiliaTime();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
       const { data, error } = await supabase
@@ -329,7 +330,7 @@ const StudentPortal = () => {
       if (recentAchievements && recentAchievements.length > 0) {
         const userAchievement = recentAchievements[0];
         const unlockedAt = new Date(userAchievement.unlocked_at);
-        const now = new Date();
+        const now = getBrasiliaTime();
         
         // Only show notification if unlocked in the last 10 seconds
         if (now.getTime() - unlockedAt.getTime() < 10000) {
@@ -366,10 +367,8 @@ const StudentPortal = () => {
   }
 
   function isCheckInAvailable(schedule: string): { available: boolean; message: string; nextAvailable?: string } {
-    const now = new Date();
-    const currentDay = now.toLocaleDateString('pt-BR', { weekday: 'long' }).toLowerCase();
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
+    const currentDay = getCurrentDayOfWeekBrasilia();
+    const { hour: currentHour, minute: currentMinute } = getCurrentTimeBrasilia();
     
     // Extract schedule info (e.g., "Segunda e Quarta, 19h-20h")
     const scheduleText = schedule.toLowerCase();
@@ -519,7 +518,7 @@ const StudentPortal = () => {
   const getNextPaymentDate = () => {
     if (!studentProfile?.payment_due_day) return null;
     
-    const today = new Date();
+    const today = getBrasiliaTime();
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
     const dueDay = studentProfile.payment_due_day;
