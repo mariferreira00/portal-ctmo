@@ -48,7 +48,7 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
       setSubclasses(data || []);
     } catch (error: any) {
       console.error("Error fetching subclasses:", error);
-      toast.error("Erro ao carregar subturmas");
+      toast.error("Erro ao carregar horários");
     } finally {
       setLoading(false);
     }
@@ -64,7 +64,7 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
           .eq("id", editingSubclass.id);
 
         if (error) throw error;
-        toast.success("Subturma atualizada!");
+        toast.success("Horário atualizado!");
       } else {
         const { error } = await supabase
           .from("subclasses")
@@ -75,7 +75,7 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
           }]);
 
         if (error) throw error;
-        toast.success("Subturma criada!");
+        toast.success("Horário criado!");
       }
 
       setFormData({ name: "", schedule: "" });
@@ -90,7 +90,7 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Deseja excluir esta subturma? Os check-ins já registrados não serão afetados.")) return;
+    if (!confirm("Deseja excluir este horário? Os check-ins já registrados não serão afetados.")) return;
     
     try {
       const { error } = await supabase
@@ -99,12 +99,12 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
         .eq("id", id);
 
       if (error) throw error;
-      toast.success("Subturma excluída!");
+      toast.success("Horário excluído!");
       fetchSubclasses();
       onUpdate();
     } catch (error: any) {
       console.error("Error deleting subclass:", error);
-      toast.error("Erro ao excluir subturma");
+      toast.error("Erro ao excluir horário");
     }
   }
 
@@ -124,17 +124,17 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Gerenciar Subturmas - {classItem?.name}</DialogTitle>
+          <DialogTitle>Gerenciar Horários - {classItem?.name}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <p className="text-sm text-muted-foreground">
-              Subturmas permitem agendar múltiplos horários para a mesma turma.
+              Configure os diferentes horários disponíveis para check-in dos alunos
             </p>
             <Button onClick={openCreateForm} size="sm">
               <Plus className="w-4 h-4 mr-2" />
-              Nova Subturma
+              Novo Horário
             </Button>
           </div>
 
@@ -143,13 +143,13 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
           ) : subclasses.length === 0 ? (
             <Card className="p-8 text-center">
               <Clock className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Nenhuma subturma cadastrada</h3>
+              <h3 className="text-lg font-semibold mb-2">Nenhum horário cadastrado</h3>
               <p className="text-muted-foreground mb-4">
-                Crie subturmas para organizar diferentes horários da turma
+                Cadastre os horários disponíveis para que os alunos possam escolher na hora do check-in
               </p>
               <Button onClick={openCreateForm}>
                 <Plus className="w-4 h-4 mr-2" />
-                Criar Subturma
+                Adicionar Horário
               </Button>
             </Card>
           ) : (
@@ -187,32 +187,32 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
           {/* Form Dialog */}
           <Dialog open={formOpen} onOpenChange={setFormOpen}>
             <DialogContent>
-              <DialogHeader>
-                <DialogTitle>
-                  {editingSubclass ? "Editar Subturma" : "Nova Subturma"}
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Nome da Subturma</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Ex: Manhã, Noite, Sábado..."
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="schedule">Horário</Label>
-                  <Input
-                    id="schedule"
-                    value={formData.schedule}
-                    onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
-                    placeholder="Ex: Seg, Qua, Sex - 06:00 às 07:00"
-                    required
-                  />
-                </div>
+            <DialogHeader>
+              <DialogTitle>
+                {editingSubclass ? "Editar Horário" : "Novo Horário"}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="name">Nome do Horário</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Ex: Manhã, Tarde, Noite, Sábado..."
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="schedule">Descrição do Horário</Label>
+                <Input
+                  id="schedule"
+                  value={formData.schedule}
+                  onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
+                  placeholder="Ex: Segunda, Quarta e Sexta - 06:00 às 07:00"
+                  required
+                />
+              </div>
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
                     Cancelar

@@ -289,15 +289,10 @@ const StudentPortal = () => {
   }
 
   async function handleCheckIn(classId: string, schedule: string) {
-    const checkInStatus = isCheckInAvailable(schedule);
-    
-    if (!checkInStatus.available) {
-      toast.error(checkInStatus.message);
-      return;
-    }
-
-    // Buscar subturmas da turma
     try {
+      if (!studentProfile) return;
+
+      // Buscar horários disponíveis da turma
       const { data: subclassData, error: subclassError } = await supabase
         .from("subclasses")
         .select("id, name, schedule")
@@ -307,19 +302,18 @@ const StudentPortal = () => {
 
       if (subclassError) throw subclassError;
 
+      // Se houver horários cadastrados, mostrar seleção
       if (subclassData && subclassData.length > 0) {
-        // Se houver subturmas, mostrar dialog para escolher
         setSubclasses(subclassData);
         setSelectedClassForCheckIn({ id: classId, schedule });
         setSubclassDialogOpen(true);
       } else {
-        // Se não houver subturmas, fazer check-in direto
+        // Se não houver horários, fazer check-in direto
         await performCheckIn(classId, null);
       }
     } catch (error: any) {
-      console.error("Error fetching subclasses:", error);
-      // Se houver erro ao buscar subturmas, fazer check-in sem subturma
-      await performCheckIn(classId, null);
+      console.error("Error checking in:", error);
+      toast.error("Erro ao fazer check-in. Tente novamente.");
     }
   }
 
@@ -809,36 +803,36 @@ const StudentPortal = () => {
         </div>
       )}
 
-      {/* Subclass Selection Dialog */}
+      {/* Dialog de Seleção de Horário */}
       <Dialog open={subclassDialogOpen} onOpenChange={setSubclassDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Escolha o Horário</DialogTitle>
+            <DialogTitle>Selecione o horário do seu treino</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Selecione qual horário você está treinando hoje:
+              Escolha qual horário você está fazendo check-in hoje:
             </p>
             {subclasses.map((subclass) => (
               <Button
                 key={subclass.id}
                 variant="outline"
-                className="w-full justify-start text-left h-auto py-4"
+                className="w-full justify-start text-left h-auto py-4 hover:bg-accent"
                 onClick={() => {
                   if (selectedClassForCheckIn) {
                     performCheckIn(selectedClassForCheckIn.id, subclass.id);
                   }
                 }}
               >
-                <div>
-                  <div className="font-semibold">{subclass.name}</div>
+                <div className="w-full">
+                  <div className="font-semibold mb-1">{subclass.name}</div>
                   <div className="text-sm text-muted-foreground">{subclass.schedule}</div>
                 </div>
               </Button>
             ))}
             <Button
               variant="ghost"
-              className="w-full"
+              className="w-full mt-2"
               onClick={() => {
                 setSubclassDialogOpen(false);
                 setSelectedClassForCheckIn(null);
