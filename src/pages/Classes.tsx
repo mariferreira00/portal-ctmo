@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Plus, Users, Pencil, Trash2, DollarSign, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -109,6 +110,10 @@ const Classes = () => {
   }
 
   function calculateClassTotal(classItem: any) {
+    // Turmas gratuitas não geram custos
+    if (classItem.is_free) {
+      return 0;
+    }
     if (!classItem.class_enrollments || classItem.class_enrollments.length === 0) {
       return 0;
     }
@@ -207,7 +212,10 @@ const Classes = () => {
             
             return (
               <Card key={c.id} className="p-6">
-                <h3 className="font-semibold text-lg mb-2">{c.name}</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  {c.name}
+                  {c.is_free && <Badge className="ml-2" variant="secondary">Gratuita</Badge>}
+                </h3>
                 <p className="text-sm text-muted-foreground mb-1">👨‍🏫 {c.teachers?.full_name || "Sem professor"}</p>
                 <p className="text-sm text-muted-foreground mb-3">📅 {c.schedule}</p>
                 
@@ -216,23 +224,34 @@ const Classes = () => {
                     <DollarSign className="w-4 h-4 text-primary" />
                     <span className="text-sm font-medium">Mensalidades</span>
                   </div>
-                  <div className="space-y-1 text-sm">
-                    <p className="flex justify-between">
-                      <span className="text-muted-foreground">Total:</span>
-                      <span className="font-semibold">R$ {total.toFixed(2)}</span>
-                    </p>
-                    <p className="flex justify-between">
-                      <span className="text-muted-foreground">CTMO (50%):</span>
-                      <span className="font-medium text-primary">R$ {ctmoShare.toFixed(2)}</span>
-                    </p>
-                    <p className="flex justify-between">
-                      <span className="text-muted-foreground">Professor (50%):</span>
-                      <span className="font-medium text-primary">R$ {teacherShare.toFixed(2)}</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {c.class_enrollments?.length || 0} aluno(s) matriculado(s)
-                    </p>
-                  </div>
+                  {c.is_free ? (
+                    <div className="space-y-1 text-sm">
+                      <p className="text-muted-foreground text-center py-2">
+                        Turma gratuita - não gera custos
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {c.class_enrollments?.length || 0} aluno(s) matriculado(s)
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1 text-sm">
+                      <p className="flex justify-between">
+                        <span className="text-muted-foreground">Total:</span>
+                        <span className="font-semibold">R$ {total.toFixed(2)}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="text-muted-foreground">CTMO (50%):</span>
+                        <span className="font-medium text-primary">R$ {ctmoShare.toFixed(2)}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="text-muted-foreground">Professor (50%):</span>
+                        <span className="font-medium text-primary">R$ {teacherShare.toFixed(2)}</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {c.class_enrollments?.length || 0} aluno(s) matriculado(s)
+                      </p>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex gap-2">

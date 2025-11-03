@@ -60,19 +60,38 @@ const AdminReports = () => {
 
   async function fetchAdminReports() {
     try {
-      // Financial Summary
+      // Financial Summary - excluir alunos em turmas gratuitas
       const { data: students } = await supabase
         .from("students")
-        .select("monthly_fee, payment_due_day, created_at")
+        .select("id, monthly_fee, payment_due_day, created_at")
         .eq("active", true);
 
-      if (students) {
-        const totalRevenue = students.reduce((sum, s) => sum + Number(s.monthly_fee), 0);
-        const avgFee = totalRevenue / students.length;
+      // Buscar turmas gratuitas
+      const { data: freeClasses } = await supabase
+        .from("classes")
+        .select("id")
+        .eq("is_free", true);
+
+      const freeClassIds = freeClasses?.map(c => c.id) || [];
+
+      // Buscar matrículas em turmas gratuitas
+      const { data: freeEnrollments } = await supabase
+        .from("class_enrollments")
+        .select("student_id")
+        .in("class_id", freeClassIds);
+
+      const freeStudentIds = new Set(freeEnrollments?.map(e => e.student_id) || []);
+
+      // Filtrar apenas alunos que não estão em turmas gratuitas
+      const paidStudents = students?.filter(s => !freeStudentIds.has(s.id)) || [];
+
+      if (paidStudents.length > 0) {
+        const totalRevenue = paidStudents.reduce((sum, s) => sum + Number(s.monthly_fee), 0);
+        const avgFee = totalRevenue / paidStudents.length;
         
-        // Calculate potential defaulters (students with payment due in next 7 days)
+        // Calculate potential defaulters (students with payment due in next 7 days) - excluir turmas gratuitas
         const today = getBrasiliaTime().getDate();
-        const potentialDefaulters = students.filter(s => {
+        const potentialDefaulters = paidStudents.filter(s => {
           if (!s.payment_due_day) return false;
           const daysUntilDue = s.payment_due_day - today;
           return daysUntilDue >= 0 && daysUntilDue <= 7;
@@ -80,9 +99,16 @@ const AdminReports = () => {
 
         setFinancialSummary({
           total_monthly_revenue: totalRevenue,
-          active_students: students.length,
+          active_students: paidStudents.length,
           potential_defaulters: potentialDefaulters,
           avg_monthly_fee: avgFee
+        });
+      } else {
+        setFinancialSummary({
+          total_monthly_revenue: 0,
+          active_students: 0,
+          potential_defaulters: 0,
+          avg_monthly_fee: 0
         });
       }
 
