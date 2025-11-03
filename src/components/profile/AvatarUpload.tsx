@@ -43,31 +43,52 @@ export const AvatarUpload = ({
     setUploading(true);
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log("Current user ID:", user?.id);
+      console.log("Profile user ID:", userId);
+      console.log("User type:", userType);
+      
       // Create preview
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
 
       // Delete old avatar if exists
       if (currentAvatarUrl) {
-        const oldPath = currentAvatarUrl.split("/").slice(-3).join("/");
-        await supabase.storage.from("avatars").remove([oldPath]);
+        try {
+          const oldPath = currentAvatarUrl.split("/").slice(-3).join("/");
+          console.log("Deleting old avatar:", oldPath);
+          await supabase.storage.from("avatars").remove([oldPath]);
+        } catch (deleteError) {
+          console.log("Error deleting old avatar (ignoring):", deleteError);
+        }
       }
 
-      // Upload new avatar
+      // Upload new avatar with user folder structure
       const fileExt = file.name.split(".").pop();
-      const fileName = `${userId}-${Date.now()}.${fileExt}`;
-      const filePath = `${userType}/${userId}/${fileName}`;
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${user?.id}/${fileName}`;
+      
+      console.log("Uploading to path:", filePath);
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
 
       // Get public URL
       const {
         data: { publicUrl },
       } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      
+      console.log("Public URL:", publicUrl);
 
       // Update database
       const { error: updateError } = await supabase
@@ -75,14 +96,17 @@ export const AvatarUpload = ({
         .update({ avatar_url: publicUrl })
         .eq("id", userId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error("Database update error:", updateError);
+        throw updateError;
+      }
 
       toast.success("Foto atualizada com sucesso!");
       onUploadComplete(publicUrl);
       setPreviewUrl(publicUrl);
     } catch (error: any) {
       console.error("Error uploading avatar:", error);
-      toast.error("Erro ao atualizar foto");
+      toast.error(error.message || "Erro ao atualizar foto");
       setPreviewUrl(currentAvatarUrl || null);
     } finally {
       setUploading(false);
