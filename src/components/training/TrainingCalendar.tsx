@@ -5,6 +5,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 import { ptBR } from "date-fns/locale";
 import { TrainingPost } from "@/hooks/useTrainingPosts";
 import { Trophy, TrendingUp } from "lucide-react";
+import { toBrasiliaTime, getBrasiliaTime } from "@/lib/timezone";
 
 interface TrainingCalendarProps {
   posts: TrainingPost[];
@@ -20,7 +21,7 @@ export const TrainingCalendar = ({ posts, currentMonth, streak }: TrainingCalend
   const days = eachDayOfInterval({ start: startDate, end: endDate });
 
   const trainingDates = new Set(
-    posts.map((post) => format(new Date(post.training_date), "yyyy-MM-dd"))
+    posts.map((post) => format(toBrasiliaTime(post.training_date), "yyyy-MM-dd"))
   );
 
   const hasTraining = (date: Date) => {
@@ -29,7 +30,7 @@ export const TrainingCalendar = ({ posts, currentMonth, streak }: TrainingCalend
 
   const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
   const thisMonth = posts.filter((post) => {
-    const postDate = new Date(post.training_date);
+    const postDate = toBrasiliaTime(post.training_date);
     return isSameMonth(postDate, currentMonth);
   }).length;
 
@@ -86,7 +87,7 @@ export const TrainingCalendar = ({ posts, currentMonth, streak }: TrainingCalend
           {days.map((day) => {
             const isCurrentMonth = isSameMonth(day, currentMonth);
             const hasTrained = hasTraining(day);
-            const isToday = isSameDay(day, new Date());
+            const isToday = isSameDay(day, getBrasiliaTime());
 
             return (
               <div

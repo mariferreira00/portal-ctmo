@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { toBrasiliaTime, getBrasiliaTime } from "@/lib/timezone";
 
 const TrainingFeed = () => {
   const { user } = useAuth();
@@ -63,9 +64,9 @@ const TrainingFeed = () => {
     setStreak(currentStreak);
 
     // Count posts this month
-    const now = new Date();
+    const now = getBrasiliaTime();
     const thisMonth = posts.filter((post) => {
-      const postDate = new Date(post.training_date);
+      const postDate = toBrasiliaTime(post.training_date);
       return (
         postDate.getMonth() === now.getMonth() &&
         postDate.getFullYear() === now.getFullYear() &&

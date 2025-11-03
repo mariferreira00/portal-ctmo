@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Camera, X, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { getBrasiliaTime } from "@/lib/timezone";
 
 interface CreateTrainingPostProps {
   onSubmit: (photo: File, caption: string, trainingDate: string) => Promise<boolean>;
@@ -14,7 +16,7 @@ export const CreateTrainingPost = ({ onSubmit }: CreateTrainingPostProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [caption, setCaption] = useState("");
   const [trainingDate, setTrainingDate] = useState(
-    new Date().toISOString().split("T")[0]
+    format(getBrasiliaTime(), "yyyy-MM-dd")
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -70,7 +72,7 @@ export const CreateTrainingPost = ({ onSubmit }: CreateTrainingPostProps) => {
       setSelectedImage(null);
       setSelectedFile(null);
       setCaption("");
-      setTrainingDate(new Date().toISOString().split("T")[0]);
+      setTrainingDate(format(getBrasiliaTime(), "yyyy-MM-dd"));
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -156,7 +158,7 @@ export const CreateTrainingPost = ({ onSubmit }: CreateTrainingPostProps) => {
             type="date"
             value={trainingDate}
             onChange={(e) => setTrainingDate(e.target.value)}
-            max={new Date().toISOString().split("T")[0]}
+            max={format(getBrasiliaTime(), "yyyy-MM-dd")}
             className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground"
           />
         </div>
