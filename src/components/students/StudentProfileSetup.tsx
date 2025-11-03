@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { UserCircle } from "lucide-react";
+import { UserCircle, Camera, Loader2 } from "lucide-react";
 
 interface StudentProfileSetupProps {
   onComplete: () => void;
@@ -24,12 +25,73 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
     payment_due_day: "5",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  // Preenche o nome completo a partir dos metadados do usuário
+  useEffect(() => {
+    if (user?.user_metadata?.full_name) {
+      setFormData(prev => ({
+        ...prev,
+        full_name: user.user_metadata.full_name
+      }));
+    }
+  }, [user]);
+
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar arquivo
+    if (!file.type.startsWith("image/")) {
+      toast.error("Por favor, selecione uma imagem válida");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 2MB");
+      return;
+    }
+
+    setAvatarFile(file);
+    
+    // Criar preview
+    const objectUrl = URL.createObjectURL(file);
+    setAvatarPreview(objectUrl);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      let avatarUrl: string | null = null;
+
+      // Upload avatar se selecionado
+      if (avatarFile && user?.id) {
+        setUploadingAvatar(true);
+        
+        const fileExt = avatarFile.name.split(".").pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const filePath = `students/${user.id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, avatarFile);
+
+        if (uploadError) throw uploadError;
+
+        // Obter URL pública
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+        avatarUrl = publicUrl;
+        setUploadingAvatar(false);
+      }
+
+      // Criar registro do aluno
       const { error } = await supabase.from("students").insert([
         {
           user_id: user?.id,
@@ -39,8 +101,9 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
           birth_date: formData.birth_date || null,
           emergency_contact: formData.emergency_contact || null,
           emergency_phone: formData.emergency_phone || null,
-          monthly_fee: 90.00, // Valor padrão
+          monthly_fee: 90.00,
           payment_due_day: parseInt(formData.payment_due_day),
+          avatar_url: avatarUrl,
         },
       ]);
 
@@ -53,6 +116,7 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
       console.error(error);
     } finally {
       setIsSubmitting(false);
+      setUploadingAvatar(false);
     }
   };
 
@@ -74,6 +138,41 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Avatar Upload */}
+          <div className="flex flex-col items-center gap-3 mb-6">
+            <div className="relative group">
+              <Avatar className="w-24 h-24">
+                <AvatarImage src={avatarPreview || undefined} alt={formData.full_name} />
+                <AvatarFallback className="bg-primary/20 text-primary text-2xl">
+                  {formData.full_name?.[0]?.toUpperCase() || "?"}
+                </AvatarFallback>
+              </Avatar>
+              <label
+                htmlFor="avatar-upload"
+                className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              >
+                {uploadingAvatar ? (
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                ) : (
+                  <Camera className="w-6 h-6 text-white" />
+                )}
+              </label>
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarSelect}
+                disabled={isSubmitting || uploadingAvatar}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              Clique na foto para adicionar uma imagem
+              <br />
+              (máx. 2MB)
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="full_name">Nome Completo *</Label>
             <Input
@@ -174,9 +273,9 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
           <Button
             type="submit"
             className="w-full"
-            disabled={isSubmitting || !formData.full_name || !formData.email}
+            disabled={isSubmitting || uploadingAvatar || !formData.full_name || !formData.email}
           >
-            {isSubmitting ? "Salvando..." : "Completar Perfil"}
+            {isSubmitting || uploadingAvatar ? "Salvando..." : "Completar Perfil"}
           </Button>
         </form>
       </Card>
