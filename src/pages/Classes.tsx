@@ -149,9 +149,42 @@ const Classes = () => {
         await supabase.from("classes").update(data).eq("id", editingClass.id);
         toast.success("Turma atualizada!");
       } else {
-        await supabase.from("classes").insert([data]);
-        toast.success("Turma cadastrada!");
+        // Criar a turma
+        const { data: newClass, error: classError } = await supabase
+          .from("classes")
+          .insert([{
+            name: data.name,
+            teacher_id: data.teacher_id,
+            schedule: data.schedule,
+            max_students: data.max_students,
+            active: data.active,
+            is_free: data.is_free
+          }])
+          .select()
+          .single();
+
+        if (classError) throw classError;
+
+        // Criar as subturmas (horários) automaticamente
+        if (data.schedules && data.schedules.length > 0 && newClass) {
+          const subclasses = data.schedules.map(schedule => ({
+            class_id: newClass.id,
+            name: schedule.name,
+            schedule: `${schedule.start_time} às ${schedule.end_time}`,
+            days_of_week: schedule.days_of_week,
+            active: true
+          }));
+
+          const { error: subclassError } = await supabase
+            .from("subclasses")
+            .insert(subclasses);
+
+          if (subclassError) throw subclassError;
+        }
+
+        toast.success("Turma cadastrada com horários!");
       }
+      
       fetchClasses();
       setEditingClass(null);
       setFormOpen(false);

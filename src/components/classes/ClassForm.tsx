@@ -18,7 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ClassFormProps {
   open: boolean;
@@ -36,6 +39,15 @@ export interface ClassFormData {
   max_students: number;
   active?: boolean;
   is_free?: boolean;
+  schedules?: ScheduleItem[];
+}
+
+interface ScheduleItem {
+  id?: string;
+  name: string;
+  days_of_week: string[];
+  start_time: string;
+  end_time: string;
 }
 
 export function ClassForm({
@@ -48,6 +60,20 @@ export function ClassForm({
 }: ClassFormProps) {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [isFree, setIsFree] = useState(defaultValues?.is_free ?? false);
+  const [schedules, setSchedules] = useState<ScheduleItem[]>([
+    { name: "", days_of_week: [], start_time: "", end_time: "" }
+  ]);
+  
+  const daysOfWeek = [
+    { value: "segunda", label: "Seg" },
+    { value: "terça", label: "Ter" },
+    { value: "quarta", label: "Qua" },
+    { value: "quinta", label: "Qui" },
+    { value: "sexta", label: "Sex" },
+    { value: "sábado", label: "Sáb" },
+    { value: "domingo", label: "Dom" },
+  ];
+
   const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm<ClassFormData>({
     defaultValues: {
       ...defaultValues,
@@ -71,20 +97,58 @@ export function ClassForm({
   }, [open]);
 
   const handleFormSubmit = async (data: ClassFormData) => {
+    // Validar horários
+    if (schedules.length === 0 || schedules.some(s => !s.name || s.days_of_week.length === 0 || !s.start_time || !s.end_time)) {
+      toast.error("Preencha todos os horários corretamente");
+      return;
+    }
+    
+    // Adicionar horários ao data
+    data.schedules = schedules;
+    // Criar um resumo dos horários para o campo schedule
+    data.schedule = schedules.map(s => 
+      `${s.name} (${s.days_of_week.join(", ")} ${s.start_time}-${s.end_time})`
+    ).join("; ");
+    
     await onSubmit(data);
     reset();
+    setSchedules([{ name: "", days_of_week: [], start_time: "", end_time: "" }]);
     onOpenChange(false);
+  };
+
+  const addSchedule = () => {
+    setSchedules([...schedules, { name: "", days_of_week: [], start_time: "", end_time: "" }]);
+  };
+
+  const removeSchedule = (index: number) => {
+    if (schedules.length > 1) {
+      setSchedules(schedules.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateSchedule = (index: number, field: keyof ScheduleItem, value: any) => {
+    const newSchedules = [...schedules];
+    newSchedules[index] = { ...newSchedules[index], [field]: value };
+    setSchedules(newSchedules);
+  };
+
+  const toggleDay = (scheduleIndex: number, day: string) => {
+    const schedule = schedules[scheduleIndex];
+    const newDays = schedule.days_of_week.includes(day)
+      ? schedule.days_of_week.filter(d => d !== day)
+      : [...schedule.days_of_week, day];
+    updateSchedule(scheduleIndex, "days_of_week", newDays);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Editar Turma" : "Nova Turma"}
           </DialogTitle>
           <DialogDescription>
-            {isEditing ? "Atualize as informações da turma" : "Adicione uma nova turma ao sistema"}
+            {isEditing ? "Atualize as informações da turma" : "Adicione uma nova turma com seus horários"}
           </DialogDescription>
         </DialogHeader>
 
@@ -122,16 +186,84 @@ export function ClassForm({
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="schedule">Horário *</Label>
-            <Input
-              id="schedule"
-              {...register("schedule", { required: "Horário é obrigatório" })}
-              placeholder="Ex: Segunda e Quarta, 18h-19h"
-            />
-            {errors.schedule && (
-              <p className="text-sm text-destructive">{errors.schedule.message}</p>
-            )}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Horários das Aulas *</Label>
+              <Button type="button" variant="outline" size="sm" onClick={addSchedule}>
+                <Plus className="w-4 h-4 mr-1" />
+                Adicionar Horário
+              </Button>
+            </div>
+
+            {schedules.map((schedule, index) => (
+              <Card key={index} className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-sm">Horário {index + 1}</h4>
+                  {schedules.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeSchedule(index)}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor={`schedule-name-${index}`}>Nome do Horário</Label>
+                  <Input
+                    id={`schedule-name-${index}`}
+                    value={schedule.name}
+                    onChange={(e) => updateSchedule(index, "name", e.target.value)}
+                    placeholder="Ex: Manhã, Tarde, Noite"
+                  />
+                </div>
+
+                <div>
+                  <Label className="mb-2 block">Dias da Semana</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {daysOfWeek.map((day) => (
+                      <div key={day.value} className="flex items-center space-x-1">
+                        <Checkbox
+                          id={`day-${index}-${day.value}`}
+                          checked={schedule.days_of_week.includes(day.value)}
+                          onCheckedChange={() => toggleDay(index, day.value)}
+                        />
+                        <label
+                          htmlFor={`day-${index}-${day.value}`}
+                          className="text-sm cursor-pointer"
+                        >
+                          {day.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor={`start-time-${index}`}>Horário Início</Label>
+                    <Input
+                      id={`start-time-${index}`}
+                      type="time"
+                      value={schedule.start_time}
+                      onChange={(e) => updateSchedule(index, "start_time", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`end-time-${index}`}>Horário Fim</Label>
+                    <Input
+                      id={`end-time-${index}`}
+                      type="time"
+                      value={schedule.end_time}
+                      onChange={(e) => updateSchedule(index, "end_time", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
 
           <div className="space-y-2">
