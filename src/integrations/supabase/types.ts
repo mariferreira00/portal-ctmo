@@ -551,6 +551,7 @@ export type Database = {
           active: boolean
           class_id: string
           created_at: string
+          days_of_week: string[] | null
           id: string
           name: string
           schedule: string
@@ -560,6 +561,7 @@ export type Database = {
           active?: boolean
           class_id: string
           created_at?: string
+          days_of_week?: string[] | null
           id?: string
           name: string
           schedule: string
@@ -569,6 +571,7 @@ export type Database = {
           active?: boolean
           class_id?: string
           created_at?: string
+          days_of_week?: string[] | null
           id?: string
           name?: string
           schedule?: string

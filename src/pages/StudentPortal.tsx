@@ -51,6 +51,7 @@ interface Subclass {
   id: string;
   name: string;
   schedule: string;
+  days_of_week: string[];
 }
 
 const StudentPortal = () => {
@@ -292,23 +293,44 @@ const StudentPortal = () => {
     try {
       if (!studentProfile) return;
 
-      // Buscar horários disponíveis da turma
+      // Obter o dia da semana atual
+      const currentDay = getCurrentDayOfWeekBrasilia();
+      const dayMap: { [key: string]: string } = {
+        'segunda-feira': 'segunda',
+        'terça-feira': 'terça',
+        'quarta-feira': 'quarta',
+        'quinta-feira': 'quinta',
+        'sexta-feira': 'sexta',
+        'sábado': 'sábado',
+        'domingo': 'domingo'
+      };
+      const todayShort = dayMap[currentDay];
+
+      // Buscar horários disponíveis da turma para o dia de hoje
       const { data: subclassData, error: subclassError } = await supabase
         .from("subclasses")
-        .select("id, name, schedule")
+        .select("id, name, schedule, days_of_week")
         .eq("class_id", classId)
         .eq("active", true)
-        .order("name");
+        .order("schedule");
 
       if (subclassError) throw subclassError;
 
-      // Se houver horários cadastrados, mostrar seleção
-      if (subclassData && subclassData.length > 0) {
-        setSubclasses(subclassData);
+      // Filtrar apenas os horários do dia de hoje
+      const todaySubclasses = subclassData?.filter(sub => 
+        sub.days_of_week && sub.days_of_week.includes(todayShort)
+      ) || [];
+
+      // Se houver horários para hoje, mostrar seleção
+      if (todaySubclasses.length > 0) {
+        setSubclasses(todaySubclasses);
         setSelectedClassForCheckIn({ id: classId, schedule });
         setSubclassDialogOpen(true);
+      } else if (subclassData && subclassData.length > 0) {
+        // Se existem horários mas nenhum para hoje
+        toast.error("Não há horários disponíveis para check-in hoje");
       } else {
-        // Se não houver horários, fazer check-in direto
+        // Se não houver horários cadastrados, fazer check-in direto
         await performCheckIn(classId, null);
       }
     } catch (error: any) {

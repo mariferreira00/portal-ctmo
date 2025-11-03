@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Clock } from "lucide-react";
@@ -20,6 +21,7 @@ interface Subclass {
   name: string;
   schedule: string;
   active: boolean;
+  days_of_week: string[];
 }
 
 export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: SubclassManagerProps) => {
@@ -27,7 +29,17 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
   const [loading, setLoading] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editingSubclass, setEditingSubclass] = useState<Subclass | null>(null);
-  const [formData, setFormData] = useState({ name: "", schedule: "" });
+  const [formData, setFormData] = useState({ name: "", schedule: "", days_of_week: [] as string[] });
+
+  const daysOfWeek = [
+    { value: "segunda", label: "Segunda" },
+    { value: "terça", label: "Terça" },
+    { value: "quarta", label: "Quarta" },
+    { value: "quinta", label: "Quinta" },
+    { value: "sexta", label: "Sexta" },
+    { value: "sábado", label: "Sábado" },
+    { value: "domingo", label: "Domingo" },
+  ];
 
   useEffect(() => {
     if (open && classItem) {
@@ -56,11 +68,21 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    
+    if (formData.days_of_week.length === 0) {
+      toast.error("Selecione pelo menos um dia da semana");
+      return;
+    }
+
     try {
       if (editingSubclass) {
         const { error } = await supabase
           .from("subclasses")
-          .update({ name: formData.name, schedule: formData.schedule })
+          .update({ 
+            name: formData.name, 
+            schedule: formData.schedule,
+            days_of_week: formData.days_of_week 
+          })
           .eq("id", editingSubclass.id);
 
         if (error) throw error;
@@ -71,21 +93,22 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
           .insert([{ 
             class_id: classItem.id, 
             name: formData.name, 
-            schedule: formData.schedule 
+            schedule: formData.schedule,
+            days_of_week: formData.days_of_week
           }]);
 
         if (error) throw error;
         toast.success("Horário criado!");
       }
 
-      setFormData({ name: "", schedule: "" });
+      setFormData({ name: "", schedule: "", days_of_week: [] });
       setEditingSubclass(null);
       setFormOpen(false);
       fetchSubclasses();
       onUpdate();
     } catch (error: any) {
       console.error("Error saving subclass:", error);
-      toast.error("Erro ao salvar subturma");
+      toast.error("Erro ao salvar horário");
     }
   }
 
@@ -110,14 +133,27 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
 
   function openEditForm(subclass: Subclass) {
     setEditingSubclass(subclass);
-    setFormData({ name: subclass.name, schedule: subclass.schedule });
+    setFormData({ 
+      name: subclass.name, 
+      schedule: subclass.schedule,
+      days_of_week: subclass.days_of_week || []
+    });
     setFormOpen(true);
   }
 
   function openCreateForm() {
     setEditingSubclass(null);
-    setFormData({ name: "", schedule: "" });
+    setFormData({ name: "", schedule: "", days_of_week: [] });
     setFormOpen(true);
+  }
+
+  function toggleDay(day: string) {
+    setFormData(prev => ({
+      ...prev,
+      days_of_week: prev.days_of_week.includes(day)
+        ? prev.days_of_week.filter(d => d !== day)
+        : [...prev.days_of_week, day]
+    }));
   }
 
   return (
@@ -157,9 +193,12 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
               {subclasses.map((subclass) => (
                 <Card key={subclass.id} className="p-4">
                   <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex-1">
                       <h4 className="font-semibold">{subclass.name}</h4>
-                      <p className="text-sm text-muted-foreground">📅 {subclass.schedule}</p>
+                      <p className="text-sm text-muted-foreground">⏰ {subclass.schedule}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        📅 {subclass.days_of_week?.join(", ") || "Nenhum dia selecionado"}
+                      </p>
                     </div>
                     <div className="flex gap-2">
                       <Button 
@@ -199,19 +238,44 @@ export const SubclassManager = ({ open, onOpenChange, classItem, onUpdate }: Sub
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Ex: Manhã, Tarde, Noite, Sábado..."
+                  placeholder="Ex: Manhã, Tarde, Noite"
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="schedule">Descrição do Horário</Label>
+                <Label htmlFor="schedule">Horário da Aula</Label>
                 <Input
                   id="schedule"
                   value={formData.schedule}
                   onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
-                  placeholder="Ex: Segunda, Quarta e Sexta - 06:00 às 07:00"
+                  placeholder="Ex: 06:00 às 07:00"
                   required
                 />
+              </div>
+              <div className="space-y-3">
+                <Label>Dias da Semana</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {daysOfWeek.map((day) => (
+                    <div key={day.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={day.value}
+                        checked={formData.days_of_week.includes(day.value)}
+                        onCheckedChange={() => toggleDay(day.value)}
+                      />
+                      <label
+                        htmlFor={day.value}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {day.label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                {formData.days_of_week.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Selecione os dias em que esta aula ocorre
+                  </p>
+                )}
               </div>
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
