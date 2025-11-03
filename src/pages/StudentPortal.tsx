@@ -660,7 +660,17 @@ const StudentPortal = () => {
                 min="1"
                 max="7"
                 value={tempGoal}
-                onChange={(e) => setTempGoal(parseInt(e.target.value) || 1)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    setTempGoal(1);
+                  } else {
+                    const numValue = parseInt(value);
+                    if (!isNaN(numValue)) {
+                      setTempGoal(numValue);
+                    }
+                  }
+                }}
                 className="mt-2"
               />
               <p className="text-sm text-muted-foreground mt-2">
