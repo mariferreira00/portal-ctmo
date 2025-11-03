@@ -277,7 +277,14 @@ const StudentPortal = () => {
     }
   }
 
-  async function handleCheckIn(classId: string) {
+  async function handleCheckIn(classId: string, schedule: string) {
+    const checkInStatus = isCheckInAvailable(schedule);
+    
+    if (!checkInStatus.available) {
+      toast.error(checkInStatus.message);
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from("attendance")
@@ -356,6 +363,84 @@ const StudentPortal = () => {
 
   function isEnrolled(classId: string) {
     return enrollments.some(e => e.class_id === classId);
+  }
+
+  function isCheckInAvailable(schedule: string): { available: boolean; message: string; nextAvailable?: string } {
+    const now = new Date();
+    const currentDay = now.toLocaleDateString('pt-BR', { weekday: 'long' }).toLowerCase();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    // Extract schedule info (e.g., "Segunda e Quarta, 19h-20h")
+    const scheduleText = schedule.toLowerCase();
+    
+    // Check if today is a training day
+    const daysMap: { [key: string]: string } = {
+      'segunda-feira': 'segunda',
+      'terça-feira': 'terça',
+      'quarta-feira': 'quarta',
+      'quinta-feira': 'quinta',
+      'sexta-feira': 'sexta',
+      'sábado': 'sábado',
+      'domingo': 'domingo'
+    };
+    
+    const todayShort = daysMap[currentDay];
+    if (!todayShort) {
+      return { available: false, message: 'Dia inválido' };
+    }
+    
+    const isTodayTrainingDay = scheduleText.includes(todayShort);
+    
+    if (!isTodayTrainingDay) {
+      return {
+        available: false,
+        message: `Check-in disponível apenas nos dias de treino`,
+      };
+    }
+    
+    // Extract start time (e.g., "19h" from "19h-20h")
+    const timeMatch = scheduleText.match(/(\d+)h/);
+    if (!timeMatch) {
+      return { available: true, message: 'Check-in disponível' };
+    }
+    
+    const classStartHour = parseInt(timeMatch[1]);
+    
+    // Calculate check-in start time (30 minutes before class)
+    let checkInStartHour = classStartHour;
+    let checkInStartMinute = 30;
+    
+    // If class starts at the exact hour, check-in starts 30 min before
+    if (classStartHour > 0) {
+      checkInStartHour = classStartHour - 1;
+    } else {
+      // Special case: if class is at midnight (00h), check-in starts at 23:30
+      checkInStartHour = 23;
+    }
+    
+    // Check if we're in the valid time window (30min before class until 23:59)
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+    const checkInStartTimeInMinutes = checkInStartHour * 60 + checkInStartMinute;
+    const midnightInMinutes = 23 * 60 + 59;
+    
+    if (currentTimeInMinutes < checkInStartTimeInMinutes) {
+      const startTime = `${String(checkInStartHour).padStart(2, '0')}:${String(checkInStartMinute).padStart(2, '0')}`;
+      return {
+        available: false,
+        message: `Check-in abre às ${startTime}`,
+        nextAvailable: startTime
+      };
+    }
+    
+    if (currentTimeInMinutes > midnightInMinutes) {
+      return {
+        available: false,
+        message: 'Check-in encerrado (até 23:59)',
+      };
+    }
+    
+    return { available: true, message: 'Check-in disponível' };
   }
 
   async function handleUpdateGoal() {
@@ -575,6 +660,7 @@ const StudentPortal = () => {
             {enrollments.map((enrollment) => {
               const classData = enrollment.classes;
               const checkedIn = hasCheckedInToday(classData.id);
+              const checkInStatus = isCheckInAvailable(classData.schedule);
               
               return (
                 <Card key={classData.id} className="p-6">
@@ -582,13 +668,20 @@ const StudentPortal = () => {
                   <p className="text-sm text-muted-foreground mb-1">
                     👨‍🏫 {classData.teachers?.full_name || "Sem professor"}
                   </p>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="text-sm text-muted-foreground mb-3">
                     📅 {classData.schedule}
                   </p>
 
+                  {!checkedIn && !checkInStatus.available && (
+                    <p className="text-xs text-amber-600 mb-2 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {checkInStatus.message}
+                    </p>
+                  )}
+
                   <Button
-                    onClick={() => handleCheckIn(classData.id)}
-                    disabled={checkedIn}
+                    onClick={() => handleCheckIn(classData.id, classData.schedule)}
+                    disabled={checkedIn || !checkInStatus.available}
                     className="w-full"
                     variant={checkedIn ? "outline" : "default"}
                   >
