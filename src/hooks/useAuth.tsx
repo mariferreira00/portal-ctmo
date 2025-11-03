@@ -139,15 +139,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      // Use scope global to ensure all sessions are cleared
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      
+      // Even if there's an error (like missing session), clear local state
+      setUser(null);
+      setSession(null);
+      
+      // Clear any localStorage items that might be causing issues
+      localStorage.removeItem('supabase.auth.token');
+      
+      navigate("/");
+      
+      // Only show error if it's not a "session missing" error
+      if (error && !error.message.includes('session')) {
+        console.error("Logout error:", error);
+        toast.error("Erro ao fazer logout, mas você foi desconectado localmente");
+      } else {
+        toast.success("Logout realizado com sucesso!");
+      }
+    } catch (error: any) {
+      // Even on error, clear local state and redirect
       setUser(null);
       setSession(null);
       navigate("/");
-      toast.success("Logout realizado com sucesso!");
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao fazer logout");
-      throw error;
+      
+      // Only show error toast if it's not a session-related error
+      if (!error.message?.includes('session')) {
+        toast.error(error.message || "Erro ao fazer logout");
+      } else {
+        toast.success("Você foi desconectado!");
+      }
     }
   };
 
