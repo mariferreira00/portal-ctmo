@@ -507,7 +507,7 @@ export type Database = {
           payment_due_day: number | null
           phone: string | null
           updated_at: string
-          user_id: string | null
+          user_id: string
           weekly_goal: number
         }
         Insert: {
@@ -524,7 +524,7 @@ export type Database = {
           payment_due_day?: number | null
           phone?: string | null
           updated_at?: string
-          user_id?: string | null
+          user_id: string
           weekly_goal?: number
         }
         Update: {
@@ -541,7 +541,7 @@ export type Database = {
           payment_due_day?: number | null
           phone?: string | null
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
           weekly_goal?: number
         }
         Relationships: []

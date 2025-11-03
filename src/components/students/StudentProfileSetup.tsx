@@ -63,6 +63,12 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user?.id) {
+      toast.error("Erro: Usuário não autenticado");
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -94,7 +100,7 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
       // Criar registro do aluno
       const { error } = await supabase.from("students").insert([
         {
-          user_id: user?.id,
+          user_id: user.id,
           full_name: formData.full_name,
           email: formData.email,
           phone: formData.phone || null,
