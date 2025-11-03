@@ -69,6 +69,7 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
       return;
     }
     
+    console.log("User ID:", user.id); // Debug
     setIsSubmitting(true);
 
     try {
@@ -98,22 +99,27 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
       }
 
       // Criar registro do aluno
-      const { error } = await supabase.from("students").insert([
-        {
-          user_id: user.id,
-          full_name: formData.full_name,
-          email: formData.email,
-          phone: formData.phone || null,
-          birth_date: formData.birth_date || null,
-          emergency_contact: formData.emergency_contact || null,
-          emergency_phone: formData.emergency_phone || null,
-          monthly_fee: 90.00,
-          payment_due_day: parseInt(formData.payment_due_day),
-          avatar_url: avatarUrl,
-        },
-      ]);
+      const studentData = {
+        user_id: user.id,
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone || null,
+        birth_date: formData.birth_date || null,
+        emergency_contact: formData.emergency_contact || null,
+        emergency_phone: formData.emergency_phone || null,
+        monthly_fee: 90.00,
+        payment_due_day: parseInt(formData.payment_due_day),
+        avatar_url: avatarUrl,
+      };
+      
+      console.log("Tentando inserir dados:", studentData); // Debug
+      
+      const { error } = await supabase.from("students").insert([studentData]);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erro detalhado:", error); // Debug
+        throw error;
+      }
 
       toast.success("Perfil de aluno criado com sucesso!");
       onComplete();
