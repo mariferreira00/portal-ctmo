@@ -55,7 +55,7 @@ const Students = () => {
     try {
       const payload = { ...data };
       
-      // Se não for admin, adiciona o user_id do usuário logado
+      // Garantir que user_id seja definido para novas inserções
       if (!isAdmin && user) {
         payload.user_id = user.id;
       }
@@ -65,7 +65,15 @@ const Students = () => {
         if (error) throw error;
         toast.success("Aluno atualizado!");
       } else {
-        const { error } = await supabase.from("students").insert([payload]);
+        // Para criar novo aluno, user_id é obrigatório
+        if (!payload.user_id) {
+          toast.error("Erro: É necessário estar autenticado para criar um perfil de aluno");
+          return;
+        }
+        const { error } = await supabase.from("students").insert([{
+          ...payload,
+          user_id: payload.user_id as string // Type assertion após validação
+        }]);
         if (error) throw error;
         toast.success("Aluno cadastrado!");
         setHasOwnProfile(true);

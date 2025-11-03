@@ -75,7 +75,7 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
       let avatarUrl: string | null = null;
 
       // Upload avatar se selecionado
-      if (avatarFile && user?.id) {
+      if (avatarFile) {
         setUploadingAvatar(true);
         
         const fileExt = avatarFile.name.split(".").pop();
