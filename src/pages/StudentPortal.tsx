@@ -11,6 +11,7 @@ import { AchievementNotification } from "@/components/achievements/AchievementNo
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getBrasiliaTime, getTodayStartBrasilia, getCurrentDayOfWeekBrasilia, getCurrentTimeBrasilia } from "@/lib/timezone";
 
 interface StudentProfile {
@@ -46,6 +47,12 @@ interface NewAchievement {
   rarity: string;
 }
 
+interface Subclass {
+  id: string;
+  name: string;
+  schedule: string;
+}
+
 const StudentPortal = () => {
   const { user } = useAuth();
   const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
@@ -58,6 +65,9 @@ const StudentPortal = () => {
   const [newAchievement, setNewAchievement] = useState<NewAchievement | null>(null);
   const [editingGoal, setEditingGoal] = useState(false);
   const [tempGoal, setTempGoal] = useState<number>(3);
+  const [subclassDialogOpen, setSubclassDialogOpen] = useState(false);
+  const [selectedClassForCheckIn, setSelectedClassForCheckIn] = useState<{ id: string; schedule: string } | null>(null);
+  const [subclasses, setSubclasses] = useState<Subclass[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -285,20 +295,56 @@ const StudentPortal = () => {
       toast.error(checkInStatus.message);
       return;
     }
-    
+
+    // Buscar subturmas da turma
     try {
+      const { data: subclassData, error: subclassError } = await supabase
+        .from("subclasses")
+        .select("id, name, schedule")
+        .eq("class_id", classId)
+        .eq("active", true)
+        .order("name");
+
+      if (subclassError) throw subclassError;
+
+      if (subclassData && subclassData.length > 0) {
+        // Se houver subturmas, mostrar dialog para escolher
+        setSubclasses(subclassData);
+        setSelectedClassForCheckIn({ id: classId, schedule });
+        setSubclassDialogOpen(true);
+      } else {
+        // Se não houver subturmas, fazer check-in direto
+        await performCheckIn(classId, null);
+      }
+    } catch (error: any) {
+      console.error("Error fetching subclasses:", error);
+      // Se houver erro ao buscar subturmas, fazer check-in sem subturma
+      await performCheckIn(classId, null);
+    }
+  }
+
+  async function performCheckIn(classId: string, subclassId: string | null) {
+    try {
+      const insertData: any = {
+        student_id: studentProfile?.id,
+        class_id: classId,
+      };
+
+      if (subclassId) {
+        insertData.subclass_id = subclassId;
+      }
+
       const { error } = await supabase
         .from("attendance")
-        .insert([{
-          student_id: studentProfile?.id,
-          class_id: classId,
-        }]);
+        .insert([insertData]);
 
       if (error) throw error;
 
       toast.success("Check-in realizado com sucesso!");
       fetchTodayAttendance();
       fetchWeeklyCheckIns();
+      setSubclassDialogOpen(false);
+      setSelectedClassForCheckIn(null);
       
       // Check for new achievements
       await checkForNewAchievements();
@@ -762,6 +808,47 @@ const StudentPortal = () => {
           </div>
         </div>
       )}
+
+      {/* Subclass Selection Dialog */}
+      <Dialog open={subclassDialogOpen} onOpenChange={setSubclassDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Escolha o Horário</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Selecione qual horário você está treinando hoje:
+            </p>
+            {subclasses.map((subclass) => (
+              <Button
+                key={subclass.id}
+                variant="outline"
+                className="w-full justify-start text-left h-auto py-4"
+                onClick={() => {
+                  if (selectedClassForCheckIn) {
+                    performCheckIn(selectedClassForCheckIn.id, subclass.id);
+                  }
+                }}
+              >
+                <div>
+                  <div className="font-semibold">{subclass.name}</div>
+                  <div className="text-sm text-muted-foreground">{subclass.schedule}</div>
+                </div>
+              </Button>
+            ))}
+            <Button
+              variant="ghost"
+              className="w-full"
+              onClick={() => {
+                setSubclassDialogOpen(false);
+                setSelectedClassForCheckIn(null);
+              }}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

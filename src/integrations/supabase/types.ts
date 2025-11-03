@@ -63,6 +63,7 @@ export type Database = {
           created_at: string
           id: string
           student_id: string
+          subclass_id: string | null
         }
         Insert: {
           checked_in_at?: string
@@ -70,6 +71,7 @@ export type Database = {
           created_at?: string
           id?: string
           student_id: string
+          subclass_id?: string | null
         }
         Update: {
           checked_in_at?: string
@@ -77,6 +79,7 @@ export type Database = {
           created_at?: string
           id?: string
           student_id?: string
+          subclass_id?: string | null
         }
         Relationships: [
           {
@@ -91,6 +94,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_subclass_id_fkey"
+            columns: ["subclass_id"]
+            isOneToOne: false
+            referencedRelation: "subclasses"
             referencedColumns: ["id"]
           },
         ]
@@ -535,6 +545,44 @@ export type Database = {
           weekly_goal?: number
         }
         Relationships: []
+      }
+      subclasses: {
+        Row: {
+          active: boolean
+          class_id: string
+          created_at: string
+          id: string
+          name: string
+          schedule: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          class_id: string
+          created_at?: string
+          id?: string
+          name: string
+          schedule: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          class_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          schedule?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subclasses_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       teachers: {
         Row: {

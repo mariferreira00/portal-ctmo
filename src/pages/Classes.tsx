@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Users, Pencil, Trash2, DollarSign, UserPlus } from "lucide-react";
+import { Plus, Users, Pencil, Trash2, DollarSign, UserPlus, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ClassForm, ClassFormData } from "@/components/classes/ClassForm";
 import { EnrollmentManager } from "@/components/classes/EnrollmentManager";
+import { SubclassManager } from "@/components/classes/SubclassManager";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 
@@ -18,6 +19,7 @@ const Classes = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<any>(null);
   const [enrollmentOpen, setEnrollmentOpen] = useState(false);
+  const [subclassOpen, setSubclassOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<any>(null);
 
   useEffect(() => { 
@@ -254,7 +256,7 @@ const Classes = () => {
                   )}
                 </div>
                 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button 
                     variant="default" 
                     size="sm" 
@@ -265,6 +267,17 @@ const Classes = () => {
                   >
                     <UserPlus className="w-4 h-4 mr-1" />
                     Alunos
+                  </Button>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    onClick={() => { 
+                      setSelectedClass(c); 
+                      setSubclassOpen(true); 
+                    }}
+                  >
+                    <Clock className="w-4 h-4 mr-1" />
+                    Horários
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => { setEditingClass(c); setFormOpen(true); }}><Pencil className="w-4 h-4" /></Button>
                   <Button variant="outline" size="sm" onClick={() => handleDelete(c.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
@@ -285,12 +298,20 @@ const Classes = () => {
       />
       
       {selectedClass && (
-        <EnrollmentManager 
-          open={enrollmentOpen} 
-          onOpenChange={setEnrollmentOpen}
-          classItem={selectedClass}
-          onUpdate={fetchClasses}
-        />
+        <>
+          <EnrollmentManager 
+            open={enrollmentOpen} 
+            onOpenChange={setEnrollmentOpen}
+            classItem={selectedClass}
+            onUpdate={fetchClasses}
+          />
+          <SubclassManager
+            open={subclassOpen}
+            onOpenChange={setSubclassOpen}
+            classItem={selectedClass}
+            onUpdate={fetchClasses}
+          />
+        </>
       )}
     </div>
   );
