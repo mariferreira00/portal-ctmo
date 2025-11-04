@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
-import ctmoLogo from "@/assets/ctmo-logo.png";
+import ctmoLogo from "@/assets/ctmo-logo-transparent.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";

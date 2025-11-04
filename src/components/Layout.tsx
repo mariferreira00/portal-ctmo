@@ -16,7 +16,7 @@ import {
   BarChart3,
   Bell,
 } from "lucide-react";
-import ctmoLogo from "@/assets/ctmo-logo.png";
+import ctmoLogo from "@/assets/ctmo-logo-transparent.png";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
