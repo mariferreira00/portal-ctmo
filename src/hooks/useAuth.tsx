@@ -148,42 +148,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     console.log('[SignOut] Starting logout process...');
     try {
-      // Clear local state FIRST to prevent any redirects
+      console.log('[SignOut] Calling supabase.auth.signOut');
+      
+      // Call Supabase signOut FIRST and WAIT for it to complete
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Clear local state
       console.log('[SignOut] Clearing local state');
       setUser(null);
       setSession(null);
       
-      // Clear any localStorage items that might be causing issues
-      localStorage.removeItem('supabase.auth.token');
+      // Clear localStorage
+      localStorage.clear();
       
-      // Then call Supabase signOut (this will trigger SIGNED_OUT event)
-      console.log('[SignOut] Calling supabase.auth.signOut');
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      // Force a complete page reload to "/" to ensure everything is cleaned
+      console.log('[SignOut] Forcing page reload');
+      window.location.href = '/';
       
-      // Navigate after clearing state
-      console.log('[SignOut] Navigating to /');
-      navigate("/");
-      
-      // Only show error if it's not a "session missing" error
-      if (error && !error.message.includes('session')) {
-        console.error("Logout error:", error);
-        toast.error("Erro ao fazer logout, mas você foi desconectado localmente");
-      } else {
-        toast.success("Logout realizado com sucesso!");
-      }
     } catch (error: any) {
       console.error('[SignOut] Exception during logout:', error);
-      // Even on error, clear local state and redirect
+      // Even on error, clear everything and force reload
       setUser(null);
       setSession(null);
-      navigate("/");
-      
-      // Only show error toast if it's not a session-related error
-      if (!error.message?.includes('session')) {
-        toast.error(error.message || "Erro ao fazer logout");
-      } else {
-        toast.success("Você foi desconectado!");
-      }
+      localStorage.clear();
+      window.location.href = '/';
     }
   };
 
