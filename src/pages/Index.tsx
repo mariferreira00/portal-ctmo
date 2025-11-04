@@ -69,7 +69,9 @@ const Index = () => {
   const { signIn, signUp, user } = useAuth();
 
   useEffect(() => {
+    console.log('[Index] User state changed:', user ? 'logged in' : 'logged out');
     if (user) {
+      console.log('[Index] User detected, redirecting to dashboard');
       navigate("/dashboard");
     }
   }, [user, navigate]);

@@ -24,10 +24,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('[Auth] Event:', event, 'Session:', session ? 'exists' : 'null');
         setSession(session);
         setUser(session?.user ?? null);
         
         if (event === "SIGNED_IN" && session?.user) {
+          console.log('[Auth] User signed in, checking role...');
           // Defer navigation to avoid blocking auth state updates
           setTimeout(async () => {
             try {
@@ -41,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               const isInstructor = roles?.some(r => r.role === "instructor");
               
               if (isAdmin) {
+                console.log('[Auth] Redirecting admin to dashboard');
                 navigate("/dashboard");
               } else if (isInstructor) {
                 // Check if instructor has teacher profile
@@ -50,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   .eq("user_id", session.user.id)
                   .maybeSingle();
                 
+                console.log('[Auth] Redirecting instructor to', teacher ? 'dashboard' : 'setup');
                 navigate(teacher ? "/instructor-dashboard" : "/instructor-setup");
               } else {
                 // Check for pending instructor request - don't redirect if pending
@@ -62,6 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                 if (pendingRequest) {
                   // User has pending instructor request, stay on login page
+                  console.log('[Auth] User has pending request, staying on login');
                   navigate("/");
                   return;
                 }
@@ -73,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   .eq("user_id", session.user.id)
                   .maybeSingle();
                 
+                console.log('[Auth] Redirecting student to', student ? 'portal' : 'setup');
                 navigate(student ? "/student-portal" : "/student-setup");
               }
             } catch (error) {
@@ -85,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         if (event === "SIGNED_OUT") {
+          console.log('[Auth] User signed out, clearing state and redirecting');
           setSession(null);
           setUser(null);
           navigate("/");
@@ -93,6 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('[Auth] Initial session check:', session ? 'exists' : 'null');
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -138,8 +146,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    console.log('[SignOut] Starting logout process...');
     try {
       // Clear local state FIRST to prevent any redirects
+      console.log('[SignOut] Clearing local state');
       setUser(null);
       setSession(null);
       
@@ -147,9 +157,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('supabase.auth.token');
       
       // Then call Supabase signOut (this will trigger SIGNED_OUT event)
+      console.log('[SignOut] Calling supabase.auth.signOut');
       const { error } = await supabase.auth.signOut({ scope: 'global' });
       
       // Navigate after clearing state
+      console.log('[SignOut] Navigating to /');
       navigate("/");
       
       // Only show error if it's not a "session missing" error
@@ -160,6 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         toast.success("Logout realizado com sucesso!");
       }
     } catch (error: any) {
+      console.error('[SignOut] Exception during logout:', error);
       // Even on error, clear local state and redirect
       setUser(null);
       setSession(null);
