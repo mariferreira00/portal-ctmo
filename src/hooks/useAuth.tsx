@@ -139,16 +139,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      // Use scope global to ensure all sessions are cleared
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
-      
-      // Even if there's an error (like missing session), clear local state
+      // Clear local state FIRST to prevent any redirects
       setUser(null);
       setSession(null);
       
       // Clear any localStorage items that might be causing issues
       localStorage.removeItem('supabase.auth.token');
       
+      // Then call Supabase signOut (this will trigger SIGNED_OUT event)
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      
+      // Navigate after clearing state
       navigate("/");
       
       // Only show error if it's not a "session missing" error
