@@ -16,7 +16,7 @@ import { toBrasiliaTime, getBrasiliaTime } from "@/lib/timezone";
 
 const TrainingFeed = () => {
   const { user } = useAuth();
-  const { isInstructor } = useUserRole();
+  const { isInstructor, isAdmin } = useUserRole();
   const {
     posts,
     loading,
@@ -78,7 +78,7 @@ const TrainingFeed = () => {
 
   const myPosts = posts.filter((post) => post.student_id === studentId);
 
-  if (!studentId && !isInstructor) {
+  if (!studentId && !isInstructor && !isAdmin) {
     return (
       <div className="space-y-6">
         <div>
@@ -189,8 +189,8 @@ const TrainingFeed = () => {
                   key={post.id}
                   post={post}
                   onReaction={addReaction}
-                  onDelete={post.student_id === studentId ? deletePost : undefined}
-                  canDelete={post.student_id === studentId}
+                  onDelete={post.student_id === studentId || isAdmin ? deletePost : undefined}
+                  canDelete={post.student_id === studentId || isAdmin}
                   currentStudentId={studentId || undefined}
                   currentTeacherId={teacherId || undefined}
                 />
