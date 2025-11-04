@@ -16,6 +16,7 @@ import {
   BarChart3,
   Bell,
 } from "lucide-react";
+import ctmoLogo from "@/assets/ctmo-logo.png";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -76,14 +77,31 @@ function AppSidebar() {
       <SidebarContent className="bg-sidebar">
         {/* Logo */}
         <div className="p-6 border-b border-sidebar-border">
-          <h1 className="text-2xl font-bold">
-            <span className="text-primary">Portal</span>
-            {open && <span className="text-foreground"> CTMO</span>}
-          </h1>
-          {open && (
-            <p className="text-xs text-muted-foreground mt-1">
-              Centro de Treinamento Marcial
-            </p>
+          {open ? (
+            <div className="flex items-center gap-3">
+              <img 
+                src={ctmoLogo} 
+                alt="CTMO" 
+                className="w-12 h-12 object-contain drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+              />
+              <div>
+                <h1 className="text-xl font-bold">
+                  <span className="text-primary">Portal</span>
+                  <span className="text-foreground"> CTMO</span>
+                </h1>
+                <p className="text-xs text-muted-foreground">
+                  Centro de Treinamento Marcial
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <img 
+                src={ctmoLogo} 
+                alt="CTMO" 
+                className="w-10 h-10 object-contain drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+              />
+            </div>
           )}
         </div>
 

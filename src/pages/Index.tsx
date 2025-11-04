@@ -13,7 +13,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
-import { Shield, AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import ctmoLogo from "@/assets/ctmo-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
@@ -228,13 +229,13 @@ const Index = () => {
       <div className="relative w-full max-w-md space-y-6 sm:space-y-8">
         {/* Logo/Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-primary/10 rounded-full mb-3 sm:mb-4 shadow-[0_0_30px_hsl(0_84%_50%_/_0.3)]">
-            <Shield className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
+          <div className="inline-flex items-center justify-center mb-3 sm:mb-4">
+            <img 
+              src={ctmoLogo} 
+              alt="CTMO Logo" 
+              className="w-32 h-32 sm:w-40 sm:h-40 object-contain drop-shadow-[0_0_30px_rgba(239,68,68,0.3)]"
+            />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold">
-            <span className="text-primary">Portal</span>
-            <span className="text-foreground"> CTMO</span>
-          </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Centro de Treinamento Marcial de Olinda
           </p>
