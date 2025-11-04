@@ -53,7 +53,9 @@ export const TrainingPostCard = ({
   const [commentsOpen, setCommentsOpen] = useState(false);
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    // Parse date as local date (not UTC) to avoid timezone issues
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "short",
