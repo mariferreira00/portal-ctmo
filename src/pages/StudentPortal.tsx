@@ -85,6 +85,32 @@ const StudentPortal = () => {
     }
   }, [studentProfile]);
 
+  // Realtime subscription for class updates
+  useEffect(() => {
+    if (!studentProfile) return;
+
+    const channel = supabase
+      .channel('class-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'classes'
+        },
+        () => {
+          // Refresh enrollments and available classes when any class is updated
+          fetchEnrollments();
+          fetchAvailableClasses();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [studentProfile]);
+
   async function fetchStudentProfile() {
     try {
       const { data, error } = await supabase
