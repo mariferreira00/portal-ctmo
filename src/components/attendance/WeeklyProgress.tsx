@@ -10,9 +10,23 @@ interface WeeklyProgressProps {
 
 export function WeeklyProgress({ checkIns, weeklyGoal = 7 }: WeeklyProgressProps) {
   const today = new Date();
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date(today);
-    date.setDate(date.getDate() - (6 - i));
+  
+  // Encontrar a segunda-feira da semana atual
+  const getMondayOfWeek = (date: Date) => {
+    const d = new Date(date);
+    const day = d.getDay(); // 0 = domingo, 1 = segunda, ..., 6 = sábado
+    const diff = day === 0 ? -6 : 1 - day; // Se domingo, volta 6 dias; senão, ajusta para segunda
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  const monday = getMondayOfWeek(today);
+  
+  // Gerar array de segunda a sábado (6 dias)
+  const weekDays = Array.from({ length: 6 }, (_, i) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
     return date;
   });
 
@@ -23,7 +37,13 @@ export function WeeklyProgress({ checkIns, weeklyGoal = 7 }: WeeklyProgressProps
     return acc;
   }, {} as Record<string, typeof checkIns>);
 
-  const totalCheckIns = checkIns.length;
+  // Contar apenas check-ins da semana atual
+  const weekCheckIns = checkIns.filter(checkIn => {
+    const checkInDate = new Date(checkIn.checked_in_at);
+    return checkInDate >= monday && checkInDate < new Date(monday.getTime() + 6 * 24 * 60 * 60 * 1000);
+  });
+  
+  const totalCheckIns = weekCheckIns.length;
   const progressPercentage = Math.min((totalCheckIns / weeklyGoal) * 100, 100);
 
   return (
@@ -49,8 +69,8 @@ export function WeeklyProgress({ checkIns, weeklyGoal = 7 }: WeeklyProgressProps
           )}
         </div>
 
-        <div className="grid grid-cols-7 gap-2">
-          {last7Days.map((date, index) => {
+        <div className="grid grid-cols-6 gap-2">
+          {weekDays.map((date, index) => {
             const dateStr = date.toDateString();
             const hasCheckIn = checkInsByDate[dateStr];
             const isToday = date.toDateString() === today.toDateString();
@@ -89,7 +109,7 @@ export function WeeklyProgress({ checkIns, weeklyGoal = 7 }: WeeklyProgressProps
               Últimos check-ins:
             </p>
             <div className="space-y-2">
-              {checkIns.slice(0, 3).map((checkIn, index) => (
+              {weekCheckIns.slice(0, 3).map((checkIn, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between text-sm"
