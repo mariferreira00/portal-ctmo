@@ -48,7 +48,8 @@ const Classes = () => {
           .from("classes")
           .select(`
             *,
-            teachers(full_name)
+            teachers(full_name),
+            subclasses(*)
           `)
           .eq("teacher_id", teacherData.id)
           .order("name");
@@ -93,6 +94,7 @@ const Classes = () => {
           .select(`
             *,
             teachers(full_name),
+            subclasses(*),
             class_enrollments(
               student_id,
               students(monthly_fee)
@@ -109,6 +111,30 @@ const Classes = () => {
     } finally {
       setLoading(false);
     }
+  }
+
+  function formatScheduleFromSubclasses(subclasses: any[]) {
+    if (!subclasses || subclasses.length === 0) {
+      return "Sem horários cadastrados";
+    }
+
+    const dayMap: { [key: string]: string } = {
+      'monday': 'segunda',
+      'tuesday': 'terça',
+      'wednesday': 'quarta',
+      'thursday': 'quinta',
+      'friday': 'sexta',
+      'saturday': 'sábado',
+      'sunday': 'domingo'
+    };
+
+    return subclasses
+      .filter(sub => sub.active)
+      .map(sub => {
+        const days = sub.days_of_week?.map((day: string) => dayMap[day] || day).join(', ') || '';
+        return `${sub.name} (${days} ${sub.schedule})`;
+      })
+      .join('; ');
   }
 
   function calculateClassTotal(classItem: any) {
@@ -252,7 +278,7 @@ const Classes = () => {
                   {c.is_free && <Badge className="ml-2" variant="secondary">Gratuita</Badge>}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-1">👨‍🏫 {c.teachers?.full_name || "Sem professor"}</p>
-                <p className="text-sm text-muted-foreground mb-3">📅 {c.schedule}</p>
+                <p className="text-sm text-muted-foreground mb-3">📅 {formatScheduleFromSubclasses(c.subclasses)}</p>
                 
                 <div className="bg-primary/5 rounded-lg p-3 space-y-2 mb-4">
                   <div className="flex items-center gap-2">
