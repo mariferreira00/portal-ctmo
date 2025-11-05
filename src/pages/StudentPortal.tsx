@@ -85,21 +85,32 @@ const StudentPortal = () => {
     }
   }, [studentProfile]);
 
-  // Realtime subscription for class updates
+  // Realtime subscription for class and subclass updates
   useEffect(() => {
     if (!studentProfile) return;
 
     const channel = supabase
-      .channel('class-updates')
+      .channel('class-subclass-updates')
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: '*',
           schema: 'public',
           table: 'classes'
         },
         () => {
-          // Refresh enrollments and available classes when any class is updated
+          fetchEnrollments();
+          fetchAvailableClasses();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subclasses'
+        },
+        () => {
           fetchEnrollments();
           fetchAvailableClasses();
         }
@@ -176,6 +187,13 @@ const StudentPortal = () => {
             is_free,
             teachers (
               full_name
+            ),
+            subclasses (
+              id,
+              name,
+              schedule,
+              days_of_week,
+              active
             )
           )
         `)
@@ -196,6 +214,13 @@ const StudentPortal = () => {
           *,
           teachers (
             full_name
+          ),
+          subclasses (
+            id,
+            name,
+            schedule,
+            days_of_week,
+            active
           )
         `)
         .eq("active", true)
@@ -252,6 +277,30 @@ const StudentPortal = () => {
     } catch (error: any) {
       console.error("Error fetching weekly check-ins:", error);
     }
+  }
+
+  function formatScheduleFromSubclasses(subclasses: any[]) {
+    if (!subclasses || subclasses.length === 0) {
+      return "Sem horários cadastrados";
+    }
+
+    const dayMap: { [key: string]: string } = {
+      'monday': 'segunda',
+      'tuesday': 'terça',
+      'wednesday': 'quarta',
+      'thursday': 'quinta',
+      'friday': 'sexta',
+      'saturday': 'sábado',
+      'sunday': 'domingo'
+    };
+
+    return subclasses
+      .filter(sub => sub.active)
+      .map(sub => {
+        const days = sub.days_of_week?.map((day: string) => dayMap[day] || day).join(', ') || '';
+        return `${sub.name} (${days} ${sub.schedule})`;
+      })
+      .join('; ');
   }
 
   async function handleEnroll(classId: string, isFree: boolean) {
@@ -758,7 +807,7 @@ const StudentPortal = () => {
                     👨‍🏫 {classData.teachers?.full_name || "Sem professor"}
                   </p>
                   <p className="text-sm text-muted-foreground mb-3">
-                    📅 {classData.schedule}
+                    📅 {formatScheduleFromSubclasses((classData as any).subclasses)}
                   </p>
 
                   {!checkedIn && !checkInStatus.available && (
@@ -820,7 +869,7 @@ const StudentPortal = () => {
                     👨‍🏫 {classItem.teachers?.full_name || "Sem professor"}
                   </p>
                   <p className="text-sm text-muted-foreground mb-4">
-                    📅 {classItem.schedule}
+                    📅 {formatScheduleFromSubclasses(classItem.subclasses)}
                   </p>
 
                   {canEnroll ? (

@@ -28,6 +28,28 @@ const Classes = () => {
     }
   }, [user, isInstructor, isAdmin]);
 
+  // Realtime subscription for subclass updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('subclass-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subclasses'
+        },
+        () => {
+          fetchClasses();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   async function fetchClasses() {
     try {
       // Se for instrutor (e não admin), filtrar apenas suas turmas
