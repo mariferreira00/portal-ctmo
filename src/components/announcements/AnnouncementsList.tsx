@@ -54,13 +54,21 @@ export function AnnouncementsList({ studentId, onDelete, canDelete }: Announceme
         .from("announcements")
         .select(`
           *,
-          classes (name),
-          profiles!announcements_created_by_fkey (full_name)
+          classes (name)
         `)
         .order("created_at", { ascending: false })
         .limit(20);
 
       if (error) throw error;
+
+      // Buscar nomes dos criadores separadamente
+      const creatorIds = [...new Set(data?.map(a => a.created_by).filter(Boolean))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", creatorIds);
+
+      const profileMap = new Map(profiles?.map(p => [p.id, p.full_name]) || []);
 
       const formatted = (data || []).map((announcement: any) => ({
         id: announcement.id,
@@ -69,7 +77,7 @@ export function AnnouncementsList({ studentId, onDelete, canDelete }: Announceme
         is_system: announcement.is_system,
         created_at: announcement.created_at,
         class_name: announcement.classes?.name,
-        creator_name: announcement.profiles?.full_name,
+        creator_name: profileMap.get(announcement.created_by) || "Sistema",
       }));
 
       setAnnouncements(formatted);
