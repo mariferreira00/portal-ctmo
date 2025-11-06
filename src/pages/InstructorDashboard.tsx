@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Calendar, CheckCircle2, User } from "lucide-react";
+import { Users, Calendar, CheckCircle2, User, Megaphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { getBrasiliaTime } from "@/lib/timezone";
+import { CreateAnnouncement } from "@/components/announcements/CreateAnnouncement";
+import { AnnouncementsList } from "@/components/announcements/AnnouncementsList";
+import { toast } from "sonner";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface ClassWithEnrollments {
   id: string;
@@ -28,6 +32,7 @@ interface AttendanceRecord {
 const InstructorDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isAdmin } = useUserRole();
   const [classes, setClasses] = useState<ClassWithEnrollments[]>([]);
   const [recentAttendance, setRecentAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -188,6 +193,40 @@ const InstructorDashboard = () => {
             </div>
           </div>
         </Card>
+      </div>
+
+      {/* Quadro de Avisos */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold flex items-center gap-2">
+            <Megaphone className="w-6 h-6" />
+            Quadro de Avisos
+          </h2>
+          <CreateAnnouncement
+            isAdmin={isAdmin}
+            instructorClasses={classes.map(c => ({ id: c.id, name: c.name }))}
+            onSuccess={() => {
+              // Announcements list will auto-refresh via realtime
+            }}
+          />
+        </div>
+        <AnnouncementsList
+          canDelete
+          onDelete={async (id) => {
+            try {
+              const { error } = await supabase
+                .from("announcements")
+                .delete()
+                .eq("id", id);
+
+              if (error) throw error;
+              toast.success("Aviso excluído");
+            } catch (error) {
+              console.error("Error deleting announcement:", error);
+              toast.error("Erro ao excluir aviso");
+            }
+          }}
+        />
       </div>
 
       {/* Minhas Turmas */}

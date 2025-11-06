@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Users, GraduationCap, UserCheck } from "lucide-react";
+import { Users, GraduationCap, UserCheck, Megaphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { CreateAnnouncement } from "@/components/announcements/CreateAnnouncement";
+import { AnnouncementsList } from "@/components/announcements/AnnouncementsList";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({ students: 0, teachers: 0, classes: 0 });
+  const [classes, setClasses] = useState<Array<{ id: string; name: string }>>([]);
 
   useEffect(() => {
     async function fetchStats() {
@@ -15,7 +19,18 @@ const Dashboard = () => {
       ]);
       setStats({ students: s.count || 0, teachers: t.count || 0, classes: c.count || 0 });
     }
+    
+    async function fetchClasses() {
+      const { data } = await supabase
+        .from("classes")
+        .select("id, name")
+        .eq("active", true)
+        .order("name");
+      setClasses(data || []);
+    }
+    
     fetchStats();
+    fetchClasses();
   }, []);
 
   return (
@@ -43,6 +58,40 @@ const Dashboard = () => {
             </div>
           </Card>
         ))}
+      </div>
+
+      {/* Quadro de Avisos */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold flex items-center gap-2">
+            <Megaphone className="w-6 h-6" />
+            Quadro de Avisos
+          </h2>
+          <CreateAnnouncement
+            isAdmin={true}
+            instructorClasses={classes}
+            onSuccess={() => {
+              // Announcements list will auto-refresh via realtime
+            }}
+          />
+        </div>
+        <AnnouncementsList
+          canDelete
+          onDelete={async (id) => {
+            try {
+              const { error } = await supabase
+                .from("announcements")
+                .delete()
+                .eq("id", id);
+
+              if (error) throw error;
+              toast.success("Aviso excluído");
+            } catch (error) {
+              console.error("Error deleting announcement:", error);
+              toast.error("Erro ao excluir aviso");
+            }
+          }}
+        />
       </div>
     </div>
   );

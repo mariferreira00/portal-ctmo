@@ -56,6 +56,47 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          class_id: string | null
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          is_system: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          class_id?: string | null
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_system?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_system?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance: {
         Row: {
           checked_in_at: string

@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { WeeklyProgress } from "@/components/attendance/WeeklyProgress";
 import { StudentForm, StudentFormData } from "@/components/students/StudentForm";
 import { AchievementNotification } from "@/components/achievements/AchievementNotification";
+import { AnnouncementsList } from "@/components/announcements/AnnouncementsList";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -688,6 +689,15 @@ const StudentPortal = () => {
         <p className="text-sm md:text-base text-muted-foreground">
           Bem-vindo, {studentProfile?.full_name}
         </p>
+      </div>
+
+      {/* Quadro de Avisos */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+          <Bell className="w-6 h-6" />
+          Quadro de Avisos
+        </h2>
+        <AnnouncementsList studentId={studentProfile.id} />
       </div>
 
       {/* Next Payment Due */}
