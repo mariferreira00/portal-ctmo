@@ -52,6 +52,8 @@ export function AnnouncementsList({ studentId, onDelete, canDelete }: Announceme
   async function fetchAnnouncements() {
     try {
       const today = getTodayDateBrasilia();
+      const startOfDay = `${today}T00:00:00`;
+      const endOfDay = `${today}T23:59:59`;
       
       const { data, error } = await supabase
         .from("announcements")
@@ -59,7 +61,8 @@ export function AnnouncementsList({ studentId, onDelete, canDelete }: Announceme
           *,
           classes (name)
         `)
-        .eq("announcement_date", today)
+        .gte("created_at", startOfDay)
+        .lte("created_at", endOfDay)
         .order("created_at", { ascending: false })
         .limit(20);
 
