@@ -58,6 +58,7 @@ export type Database = {
       }
       announcements: {
         Row: {
+          announcement_date: string
           class_id: string | null
           content: string
           created_at: string
@@ -68,6 +69,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          announcement_date?: string
           class_id?: string | null
           content: string
           created_at?: string
@@ -78,6 +80,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          announcement_date?: string
           class_id?: string | null
           content?: string
           created_at?: string

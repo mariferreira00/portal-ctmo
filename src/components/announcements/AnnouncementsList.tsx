@@ -50,12 +50,15 @@ export function AnnouncementsList({ studentId, onDelete, canDelete }: Announceme
 
   async function fetchAnnouncements() {
     try {
+      const today = new Date().toISOString().split('T')[0];
+      
       const { data, error } = await supabase
         .from("announcements")
         .select(`
           *,
           classes (name)
         `)
+        .eq("announcement_date", today)
         .order("created_at", { ascending: false })
         .limit(20);
 

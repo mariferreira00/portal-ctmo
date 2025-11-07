@@ -7,8 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Calendar as CalendarIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface CreateAnnouncementProps {
   isAdmin?: boolean;
@@ -23,6 +28,7 @@ export function CreateAnnouncement({ isAdmin, instructorClasses = [], onSuccess 
   const [content, setContent] = useState("");
   const [classId, setClassId] = useState<string | null>(null);
   const [isSystem, setIsSystem] = useState(false);
+  const [announcementDate, setAnnouncementDate] = useState<Date>(new Date());
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,6 +72,7 @@ export function CreateAnnouncement({ isAdmin, instructorClasses = [], onSuccess 
         class_id: isSystem ? null : classId,
         is_system: isAdmin && isSystem,
         created_by: user.id,
+        announcement_date: format(announcementDate, "yyyy-MM-dd"),
       }]);
 
       if (error) throw error;
@@ -79,6 +86,7 @@ export function CreateAnnouncement({ isAdmin, instructorClasses = [], onSuccess 
       setContent("");
       setClassId(null);
       setIsSystem(false);
+      setAnnouncementDate(new Date());
       setOpen(false);
       onSuccess?.();
     } catch (error) {
@@ -129,6 +137,37 @@ export function CreateAnnouncement({ isAdmin, instructorClasses = [], onSuccess 
               disabled={loading}
               className="min-h-[120px]"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Data do Aviso</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !announcementDate && "text-muted-foreground"
+                  )}
+                  disabled={loading}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {announcementDate ? format(announcementDate, "PPP", { locale: ptBR }) : "Selecione a data"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={announcementDate}
+                  onSelect={(date) => date && setAnnouncementDate(date)}
+                  locale={ptBR}
+                  disabled={loading}
+                />
+              </PopoverContent>
+            </Popover>
+            <p className="text-xs text-muted-foreground">
+              O aviso será exibido apenas nesta data
+            </p>
           </div>
 
           {isAdmin && (
