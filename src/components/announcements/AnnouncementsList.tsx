@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AnnouncementCard } from "./AnnouncementCard";
 import { Loader2, Megaphone } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { getTodayDateBrasilia } from "@/lib/timezone";
 
 interface Announcement {
   id: string;
@@ -50,7 +51,7 @@ export function AnnouncementsList({ studentId, onDelete, canDelete }: Announceme
 
   async function fetchAnnouncements() {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayDateBrasilia();
       
       const { data, error } = await supabase
         .from("announcements")
