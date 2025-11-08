@@ -76,20 +76,20 @@ function AppSidebar() {
     <Sidebar className="border-r border-sidebar-border">
       <SidebarContent className="bg-sidebar">
         {/* Logo */}
-        <div className="p-6 border-b border-sidebar-border">
+        <div className="p-4 md:p-6 border-b border-sidebar-border">
           {open ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <img 
                 src={ctmoLogo} 
                 alt="CTMO" 
-                className="w-12 h-12 object-contain drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+                className="w-10 h-10 md:w-12 md:h-12 object-contain drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]"
               />
               <div>
-                <h1 className="text-xl font-bold">
+                <h1 className="text-lg md:text-xl font-bold">
                   <span className="text-primary">Portal</span>
                   <span className="text-foreground"> CTMO</span>
                 </h1>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground hidden md:block">
                   Centro de Treinamento Marcial
                 </p>
               </div>
@@ -99,7 +99,7 @@ function AppSidebar() {
               <img 
                 src={ctmoLogo} 
                 alt="CTMO" 
-                className="w-10 h-10 object-contain drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+                className="w-8 h-8 md:w-10 md:h-10 object-contain drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]"
               />
             </div>
           )}
@@ -108,7 +108,7 @@ function AppSidebar() {
         {/* Navigation */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-2 p-4">
+            <SidebarMenu className="space-y-1 md:space-y-2 p-2 md:p-4">
               {/* Show different navigation based on role */}
               {isAdmin ? (
                 <>
@@ -121,14 +121,14 @@ function AppSidebar() {
                           <NavLink
                             to={item.href}
                             className={cn(
-                              "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
+                              "flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg transition-all duration-300",
                               isActive
                                 ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(0_84%_50%_/_0.3)]"
                                 : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                             )}
                           >
-                            <item.icon className="w-5 h-5 shrink-0" />
-                            {open && <span className="font-medium">{item.title}</span>}
+                            <item.icon className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
+                            {open && <span className="text-sm md:text-base font-medium">{item.title}</span>}
                           </NavLink>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -436,23 +436,23 @@ function AppSidebar() {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         
         <main className="flex-1 flex flex-col w-full min-w-0">
           {/* Mobile header with menu trigger */}
-          <header className="sticky top-0 z-10 flex items-center gap-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 lg:hidden">
+          <header className="sticky top-0 z-10 flex items-center gap-3 md:gap-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-3 md:p-4 lg:hidden">
             <SidebarTrigger>
-              <Menu className="h-6 w-6" />
+              <Menu className="h-5 w-5 md:h-6 md:w-6" />
             </SidebarTrigger>
-            <h2 className="font-bold text-lg">
+            <h2 className="font-bold text-base md:text-lg">
               <span className="text-primary">Portal</span> CTMO
             </h2>
           </header>
 
           {/* Main content */}
-          <div className="flex-1 p-4 md:p-6 lg:p-8">
+          <div className="flex-1 p-3 md:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto w-full">{children}</div>
           </div>
         </main>

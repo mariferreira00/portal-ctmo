@@ -676,7 +676,7 @@ const StudentPortal = () => {
   const nextPaymentDate = getNextPaymentDate();
 
   return (
-    <div className="space-y-6 md:space-y-8">
+    <div className="space-y-4 md:space-y-6">
       {newAchievement && (
         <AchievementNotification
           achievement={newAchievement}
@@ -685,29 +685,30 @@ const StudentPortal = () => {
       )}
       
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold">Portal do Aluno</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-1">Portal do Aluno</h1>
+        <p className="text-xs md:text-sm text-muted-foreground">
           Bem-vindo, {studentProfile?.full_name}
         </p>
       </div>
 
       {/* Quadro de Avisos */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-          <Bell className="w-6 h-6" />
-          Quadro de Avisos
+        <h2 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4 flex items-center gap-2">
+          <Bell className="w-5 h-5 md:w-6 md:h-6" />
+          <span className="hidden sm:inline">Quadro de Avisos</span>
+          <span className="sm:hidden">Avisos</span>
         </h2>
         <AnnouncementsList studentId={studentProfile.id} />
       </div>
 
       {/* Next Payment Due */}
       {nextPaymentDate && (
-        <Card className="p-6 bg-primary/5 border-primary/20">
-          <div className="flex items-center gap-3">
-            <Calendar className="w-8 h-8 text-primary" />
+        <Card className="p-4 md:p-6 bg-primary/5 border-primary/20">
+          <div className="flex items-center gap-2 md:gap-3">
+            <Calendar className="w-6 h-6 md:w-8 md:h-8 text-primary" />
             <div>
-              <p className="text-sm text-muted-foreground">Próxima mensalidade em:</p>
-              <p className="text-2xl font-bold">
+              <p className="text-xs md:text-sm text-muted-foreground">Próxima mensalidade em:</p>
+              <p className="text-lg md:text-2xl font-bold">
                 {nextPaymentDate.toLocaleDateString("pt-BR", { 
                   day: "2-digit", 
                   month: "long", 
@@ -720,17 +721,18 @@ const StudentPortal = () => {
       )}
 
       {/* Weekly Goal Configuration */}
-      <Card className="p-6 bg-card border-border">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-4 md:p-6 bg-card border-border">
+        <div className="flex items-center justify-between mb-3 md:mb-4">
           <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold text-foreground">Meta Semanal</h3>
+            <Target className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+            <h3 className="text-base md:text-lg font-semibold text-foreground">Meta Semanal</h3>
           </div>
           {!editingGoal && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setEditingGoal(true)}
+              className="text-xs md:text-sm"
             >
               Editar
             </Button>
@@ -738,9 +740,9 @@ const StudentPortal = () => {
         </div>
 
         {editingGoal ? (
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             <div>
-              <Label htmlFor="weekly-goal">Quantos treinos você pretende fazer por semana?</Label>
+              <Label htmlFor="weekly-goal" className="text-xs md:text-sm">Quantos treinos você pretende fazer por semana?</Label>
               <Input
                 id="weekly-goal"
                 type="number"
@@ -750,12 +752,12 @@ const StudentPortal = () => {
                 onChange={(e) => setTempGoal(e.target.value)}
                 className="mt-2"
               />
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-xs md:text-sm text-muted-foreground mt-2">
                 Meta sugerida baseada nas suas turmas: {defaultWeeklyGoal} treinos
               </p>
             </div>
             <div className="flex gap-2">
-              <Button onClick={handleUpdateGoal} size="sm">
+              <Button onClick={handleUpdateGoal} size="sm" className="text-xs md:text-sm">
                 Salvar
               </Button>
               <Button
@@ -765,6 +767,7 @@ const StudentPortal = () => {
                   setTempGoal((studentProfile?.weekly_goal || defaultWeeklyGoal).toString());
                   setEditingGoal(false);
                 }}
+                className="text-xs md:text-sm"
               >
                 Cancelar
               </Button>
@@ -772,7 +775,7 @@ const StudentPortal = () => {
           </div>
         ) : (
           <div className="space-y-2">
-            <p className="text-muted-foreground">
+            <p className="text-xs md:text-sm text-muted-foreground">
               Sua meta atual: <span className="font-semibold text-foreground">{currentWeeklyGoal} treinos por semana</span>
             </p>
             <p className="text-xs text-muted-foreground">
@@ -790,38 +793,38 @@ const StudentPortal = () => {
 
       {/* Minhas Turmas */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-          <Users className="w-6 h-6" />
+        <h2 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4 flex items-center gap-2">
+          <Users className="w-5 h-5 md:w-6 md:h-6" />
           Minhas Turmas
         </h2>
         
         {enrollments.length === 0 ? (
-          <Card className="p-8 text-center">
-            <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Nenhuma turma matriculada</h3>
-            <p className="text-muted-foreground">
+          <Card className="p-6 md:p-8 text-center">
+            <Calendar className="w-10 h-10 md:w-12 md:h-12 text-muted-foreground mx-auto mb-3 md:mb-4" />
+            <h3 className="text-lg md:text-xl font-semibold mb-2">Nenhuma turma matriculada</h3>
+            <p className="text-sm md:text-base text-muted-foreground">
               Matricule-se em uma turma abaixo para começar
             </p>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {enrollments.map((enrollment) => {
               const classData = enrollment.classes;
               const checkedIn = hasCheckedInToday(classData.id);
               const checkInStatus = isCheckInAvailable(classData.schedule);
               
               return (
-                <Card key={classData.id} className="p-6">
-                  <h3 className="font-semibold text-lg mb-2">{classData.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-1">
+                <Card key={classData.id} className="p-4 md:p-6">
+                  <h3 className="font-semibold text-base md:text-lg mb-2">{classData.name}</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground mb-1">
                     👨‍🏫 {classData.teachers?.full_name || "Sem professor"}
                   </p>
-                  <p className="text-sm text-muted-foreground mb-3">
+                  <p className="text-xs md:text-sm text-muted-foreground mb-3">
                     📅 {formatScheduleFromSubclasses((classData as any).subclasses)}
                   </p>
 
                   {!checkedIn && !checkInStatus.available && (
-                    <p className="text-xs text-amber-600 mb-2 flex items-center gap-1">
+                    <p className="text-[10px] md:text-xs text-amber-600 mb-2 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {checkInStatus.message}
                     </p>
@@ -830,17 +833,17 @@ const StudentPortal = () => {
                   <Button
                     onClick={() => handleCheckIn(classData.id, classData.schedule)}
                     disabled={checkedIn || !checkInStatus.available}
-                    className="w-full"
+                    className="w-full text-xs md:text-sm"
                     variant={checkedIn ? "outline" : "default"}
                   >
                     {checkedIn ? (
                       <>
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                         Check-in Feito
                       </>
                     ) : (
                       <>
-                        <Clock className="w-4 h-4 mr-2" />
+                        <Clock className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                         Fazer Check-in
                       </>
                     )}
@@ -855,30 +858,30 @@ const StudentPortal = () => {
       {/* Turmas Disponíveis */}
       {unenrolledClasses.length > 0 && (
         <div>
-          <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-            <Calendar className="w-6 h-6" />
+          <h2 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4 flex items-center gap-2">
+            <Calendar className="w-5 h-5 md:w-6 md:h-6" />
             Turmas Disponíveis
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {unenrolledClasses.map((classItem) => {
               const isFree = classItem.is_free;
               const canEnroll = !hasRegularEnrollment || isFree;
 
               return (
-                <Card key={classItem.id} className="p-6">
+                <Card key={classItem.id} className="p-4 md:p-6">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-lg">{classItem.name}</h3>
+                    <h3 className="font-semibold text-base md:text-lg">{classItem.name}</h3>
                     {isFree && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-[10px] md:text-xs">
                         Livre
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-1">
+                  <p className="text-xs md:text-sm text-muted-foreground mb-1">
                     👨‍🏫 {classItem.teachers?.full_name || "Sem professor"}
                   </p>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4">
                     📅 {formatScheduleFromSubclasses(classItem.subclasses)}
                   </p>
 
@@ -886,7 +889,7 @@ const StudentPortal = () => {
                     <Button
                       onClick={() => handleEnroll(classItem.id, isFree)}
                       variant="outline"
-                      className="w-full"
+                      className="w-full text-xs md:text-sm"
                     >
                       Matricular-se
                     </Button>
@@ -894,14 +897,14 @@ const StudentPortal = () => {
                     <Button
                       onClick={() => handleRequestEnrollment(classItem.id, classItem.name)}
                       variant="outline"
-                      className="w-full"
+                      className="w-full text-xs md:text-sm"
                     >
-                      <Bell className="w-4 h-4 mr-2" />
+                      <Bell className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                       Solicitar Matrícula
                     </Button>
                   )}
                   {!canEnroll && (
-                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-2 text-center">
                       Matrícula adicional requer aprovação
                     </p>
                   )}
@@ -914,19 +917,19 @@ const StudentPortal = () => {
 
       {/* Dialog de Seleção de Horário */}
       <Dialog open={subclassDialogOpen} onOpenChange={setSubclassDialogOpen}>
-        <DialogContent>
+        <DialogContent className="w-[95vw] max-w-md">
           <DialogHeader>
-            <DialogTitle>Selecione o horário do seu treino</DialogTitle>
+            <DialogTitle className="text-base md:text-lg">Selecione o horário do seu treino</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
+          <div className="space-y-2 md:space-y-3">
+            <p className="text-xs md:text-sm text-muted-foreground">
               Escolha qual horário você está fazendo check-in hoje:
             </p>
             {subclasses.map((subclass) => (
               <Button
                 key={subclass.id}
                 variant="outline"
-                className="w-full justify-start text-left h-auto py-4 hover:bg-accent"
+                className="w-full justify-start text-left h-auto py-3 md:py-4 hover:bg-accent"
                 onClick={() => {
                   if (selectedClassForCheckIn) {
                     performCheckIn(selectedClassForCheckIn.id, subclass.id);
@@ -934,14 +937,14 @@ const StudentPortal = () => {
                 }}
               >
                 <div className="w-full">
-                  <div className="font-semibold mb-1">{subclass.name}</div>
-                  <div className="text-sm text-muted-foreground">{subclass.schedule}</div>
+                  <div className="font-semibold text-sm md:text-base mb-1">{subclass.name}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">{subclass.schedule}</div>
                 </div>
               </Button>
             ))}
             <Button
               variant="ghost"
-              className="w-full mt-2"
+              className="w-full mt-2 text-xs md:text-sm"
               onClick={() => {
                 setSubclassDialogOpen(false);
                 setSelectedClassForCheckIn(null);

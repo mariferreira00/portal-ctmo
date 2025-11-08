@@ -34,26 +34,26 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="space-y-6 md:space-y-8">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard Portal CTMO</h1>
-        <p className="text-sm md:text-base text-muted-foreground">Visão geral do centro de treinamento</p>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-1 md:mb-2">Dashboard Portal CTMO</h1>
+        <p className="text-xs md:text-sm text-muted-foreground">Visão geral do centro de treinamento</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         {[
           { title: "Total de Alunos", value: stats.students, icon: Users },
           { title: "Professores", value: stats.teachers, icon: GraduationCap },
           { title: "Turmas Ativas", value: stats.classes, icon: UserCheck },
         ].map((stat, i) => (
-          <Card key={i} className="p-6 hover:border-primary transition-all">
+          <Card key={i} className="p-4 md:p-6 hover:border-primary transition-all">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">{stat.title}</p>
-                <h3 className="text-3xl font-bold">{stat.value}</h3>
+                <p className="text-xs md:text-sm text-muted-foreground">{stat.title}</p>
+                <h3 className="text-2xl md:text-3xl font-bold mt-1">{stat.value}</h3>
               </div>
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <stat.icon className="w-6 h-6 text-primary" />
+              <div className="p-2 md:p-3 bg-primary/10 rounded-lg">
+                <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
               </div>
             </div>
           </Card>
@@ -62,10 +62,11 @@ const Dashboard = () => {
 
       {/* Quadro de Avisos */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold flex items-center gap-2">
-            <Megaphone className="w-6 h-6" />
-            Quadro de Avisos
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <h2 className="text-xl md:text-2xl font-semibold flex items-center gap-2">
+            <Megaphone className="w-5 h-5 md:w-6 md:h-6" />
+            <span className="hidden sm:inline">Quadro de Avisos</span>
+            <span className="sm:hidden">Avisos</span>
           </h2>
           <CreateAnnouncement
             isAdmin={true}

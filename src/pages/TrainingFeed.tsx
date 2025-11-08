@@ -94,14 +94,14 @@ const TrainingFeed = () => {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-1 md:mb-2 truncate">
             Feed de Treinos
           </h1>
-          <p className="text-sm md:text-base text-muted-foreground">
+          <p className="text-xs md:text-sm text-muted-foreground hidden sm:block">
             Compartilhe seu progresso e inspire seus colegas
           </p>
         </div>
@@ -110,41 +110,41 @@ const TrainingFeed = () => {
 
       {/* Stats Cards */}
       {studentId && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-orange-500/10 rounded-full">
-                <TrendingUp className="w-6 h-6 text-orange-500" />
+        <div className="grid grid-cols-3 md:grid-cols-3 gap-2 md:gap-4">
+          <Card className="p-3 md:p-6">
+            <div className="flex flex-col md:flex-row items-center md:gap-3">
+              <div className="p-2 md:p-3 bg-orange-500/10 rounded-full mb-2 md:mb-0">
+                <TrendingUp className="w-4 h-4 md:w-6 md:h-6 text-orange-500" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Sequência Atual</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {streak} dias 🔥
+              <div className="text-center md:text-left">
+                <p className="text-[10px] md:text-sm text-muted-foreground">Sequência</p>
+                <p className="text-sm md:text-2xl font-bold text-foreground">
+                  {streak}d 🔥
                 </p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Camera className="w-6 h-6 text-primary" />
+          <Card className="p-3 md:p-6">
+            <div className="flex flex-col md:flex-row items-center md:gap-3">
+              <div className="p-2 md:p-3 bg-primary/10 rounded-full mb-2 md:mb-0">
+                <Camera className="w-4 h-4 md:w-6 md:h-6 text-primary" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Posts este Mês</p>
-                <p className="text-2xl font-bold text-foreground">{postsThisMonth}</p>
+              <div className="text-center md:text-left">
+                <p className="text-[10px] md:text-sm text-muted-foreground">Este Mês</p>
+                <p className="text-sm md:text-2xl font-bold text-foreground">{postsThisMonth}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-purple-500/10 rounded-full">
-                <Trophy className="w-6 h-6 text-purple-500" />
+          <Card className="p-3 md:p-6">
+            <div className="flex flex-col md:flex-row items-center md:gap-3">
+              <div className="p-2 md:p-3 bg-purple-500/10 rounded-full mb-2 md:mb-0">
+                <Trophy className="w-4 h-4 md:w-6 md:h-6 text-purple-500" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total de Posts</p>
-                <p className="text-2xl font-bold text-foreground">{myPosts.length}</p>
+              <div className="text-center md:text-left">
+                <p className="text-[10px] md:text-sm text-muted-foreground">Total</p>
+                <p className="text-sm md:text-2xl font-bold text-foreground">{myPosts.length}</p>
               </div>
             </div>
           </Card>
@@ -154,36 +154,38 @@ const TrainingFeed = () => {
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className={studentId ? "grid w-full grid-cols-4" : "grid w-full grid-cols-1"}>
-          <TabsTrigger value="feed" className="gap-2">
-            <Trophy className="w-4 h-4" />
-            <span className="hidden sm:inline">Feed</span>
+          <TabsTrigger value="feed" className="gap-1 md:gap-2 text-xs md:text-sm">
+            <Trophy className="w-3 h-3 md:w-4 md:h-4" />
+            <span>Feed</span>
           </TabsTrigger>
           {studentId && (
             <>
-              <TabsTrigger value="ranking" className="gap-2">
-                <TrendingUp className="w-4 h-4" />
-                <span className="hidden sm:inline">Ranking</span>
+              <TabsTrigger value="ranking" className="gap-1 md:gap-2 text-xs md:text-sm">
+                <TrendingUp className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden xs:inline">Ranking</span>
+                <span className="xs:hidden">Rank</span>
               </TabsTrigger>
-              <TabsTrigger value="calendar" className="gap-2">
-                <Calendar className="w-4 h-4" />
-                <span className="hidden sm:inline">Calendário</span>
+              <TabsTrigger value="calendar" className="gap-1 md:gap-2 text-xs md:text-sm">
+                <Calendar className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden xs:inline">Calendário</span>
+                <span className="xs:hidden">Cal</span>
               </TabsTrigger>
-              <TabsTrigger value="create" className="gap-2">
-                <Camera className="w-4 h-4" />
-                <span className="hidden sm:inline">Postar</span>
+              <TabsTrigger value="create" className="gap-1 md:gap-2 text-xs md:text-sm">
+                <Camera className="w-3 h-3 md:w-4 md:h-4" />
+                <span>Postar</span>
               </TabsTrigger>
             </>
           )}
         </TabsList>
 
         {/* Feed Tab */}
-        <TabsContent value="feed" className="mt-6">
+        <TabsContent value="feed" className="mt-3 md:mt-6">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Carregando...</p>
+            <div className="text-center py-8 md:py-12">
+              <p className="text-sm md:text-base text-muted-foreground">Carregando...</p>
             </div>
           ) : posts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               {posts.map((post) => (
                 <TrainingPostCard
                   key={post.id}
@@ -197,10 +199,10 @@ const TrainingFeed = () => {
               ))}
             </div>
           ) : (
-            <Card className="p-12 text-center">
-              <Camera className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-              <h3 className="text-xl font-semibold mb-2">Nenhum post ainda</h3>
-              <p className="text-muted-foreground">
+            <Card className="p-8 md:p-12 text-center">
+              <Camera className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-3 md:mb-4 opacity-50" />
+              <h3 className="text-lg md:text-xl font-semibold mb-2">Nenhum post ainda</h3>
+              <p className="text-sm md:text-base text-muted-foreground">
                 Seja o primeiro a postar uma foto de treino!
               </p>
             </Card>
@@ -208,12 +210,12 @@ const TrainingFeed = () => {
         </TabsContent>
 
         {/* Ranking Tab */}
-        <TabsContent value="ranking" className="mt-6">
+        <TabsContent value="ranking" className="mt-3 md:mt-6">
           <WeeklyRanking />
         </TabsContent>
 
         {/* Calendar Tab */}
-        <TabsContent value="calendar" className="mt-6">
+        <TabsContent value="calendar" className="mt-3 md:mt-6">
           <TrainingCalendar 
             posts={myPosts} 
             currentMonth={currentMonth}
@@ -222,7 +224,7 @@ const TrainingFeed = () => {
         </TabsContent>
 
         {/* Create Tab */}
-        <TabsContent value="create" className="mt-6">
+        <TabsContent value="create" className="mt-3 md:mt-6">
           <div className="max-w-2xl mx-auto">
             <CreateTrainingPost onSubmit={createPost} />
           </div>
