@@ -436,7 +436,7 @@ function AppSidebar() {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         
