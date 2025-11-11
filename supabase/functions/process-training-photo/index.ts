@@ -45,10 +45,18 @@ Deno.serve(async (req) => {
     const base64Data = file.split(',')[1];
     const imageBuffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
 
+    // Sanitize filename: remove special characters, spaces, and accents
+    const sanitizedFileName = fileName
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-zA-Z0-9.-]/g, '_') // Replace special chars with underscore
+      .replace(/_{2,}/g, '_') // Replace multiple underscores with single
+      .toLowerCase();
+
     // Generate unique file names
     const timestamp = Date.now();
-    const fullSizePath = `${user.id}/${timestamp}-${fileName}`;
-    const thumbnailPath = `${user.id}/${timestamp}-thumb-${fileName}`;
+    const fullSizePath = `${user.id}/${timestamp}-${sanitizedFileName}`;
+    const thumbnailPath = `${user.id}/${timestamp}-thumb-${sanitizedFileName}`;
 
     // Upload full-size image to storage
     const { data: uploadData, error: uploadError } = await supabase.storage

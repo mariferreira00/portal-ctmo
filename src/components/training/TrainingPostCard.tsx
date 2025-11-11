@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2, MessageCircle } from "lucide-react";
+import { Trash2, MessageCircle, Maximize2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { PostComments } from "./PostComments";
 import {
@@ -23,6 +23,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface TrainingPostCardProps {
   post: TrainingPost;
@@ -114,20 +119,34 @@ export const TrainingPostCard = ({
       </div>
 
       {/* Image */}
-      <div className="relative bg-muted aspect-square">
-        {!imageLoaded && (
-          <div className="w-full h-full animate-pulse bg-muted" />
-        )}
-        <img
-          src={post.thumbnail_url || post.photo_url}
-          alt="Training photo"
-          className={`w-full h-full object-cover ${
-            imageLoaded ? "block" : "hidden"
-          }`}
-          onLoad={() => setImageLoaded(true)}
-          onError={() => setImageLoaded(true)}
-        />
-      </div>
+      <Dialog>
+        <DialogTrigger asChild>
+          <div className="relative bg-muted cursor-pointer group">
+            {!imageLoaded && (
+              <div className="w-full h-96 animate-pulse bg-muted" />
+            )}
+            <img
+              src={post.thumbnail_url || post.photo_url}
+              alt="Training photo"
+              className={`w-full max-h-[600px] object-contain ${
+                imageLoaded ? "block" : "hidden"
+              }`}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageLoaded(true)}
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+              <Maximize2 className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          </div>
+        </DialogTrigger>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0">
+          <img
+            src={post.photo_url}
+            alt="Training photo"
+            className="w-full h-full object-contain"
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Reactions */}
       <div className="p-4 space-y-3">
