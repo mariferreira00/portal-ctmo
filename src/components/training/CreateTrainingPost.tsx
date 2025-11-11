@@ -22,6 +22,9 @@ export const CreateTrainingPost = ({ onSubmit }: CreateTrainingPostProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -53,7 +56,12 @@ export const CreateTrainingPost = ({ onSubmit }: CreateTrainingPostProps) => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e?: React.MouseEvent<HTMLButtonElement>) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (!selectedFile) {
       toast.error("Selecione uma foto");
       return;
@@ -114,9 +122,14 @@ export const CreateTrainingPost = ({ onSubmit }: CreateTrainingPostProps) => {
             </Button>
           </div>
         ) : (
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              fileInputRef.current?.click();
+            }}
+            className="w-full border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
           >
             <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
             <p className="text-sm text-muted-foreground mb-1">
@@ -125,7 +138,7 @@ export const CreateTrainingPost = ({ onSubmit }: CreateTrainingPostProps) => {
             <p className="text-xs text-muted-foreground">
               JPG, PNG ou WebP (máx. 2MB)
             </p>
-          </div>
+          </button>
         )}
 
         <input
@@ -165,6 +178,7 @@ export const CreateTrainingPost = ({ onSubmit }: CreateTrainingPostProps) => {
 
         {/* Submit Button */}
         <Button
+          type="button"
           onClick={handleSubmit}
           disabled={!selectedFile || isSubmitting}
           className="w-full"
