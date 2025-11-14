@@ -91,7 +91,15 @@ export const CreateTrainingPost = ({ onSubmit }: CreateTrainingPostProps) => {
 
   return (
     <Card className="p-6 bg-card border-border">
-      <div className="space-y-4">
+      <form 
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="space-y-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
             <Camera className="w-5 h-5 text-primary" />
@@ -196,7 +204,8 @@ export const CreateTrainingPost = ({ onSubmit }: CreateTrainingPostProps) => {
         <p className="text-xs text-muted-foreground text-center">
           Limite: 1 post por dia
         </p>
-      </div>
+        </div>
+      </form>
     </Card>
   );
 };
