@@ -3,9 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Medal, Award } from "lucide-react";
+import { Trophy, Medal, Award, CheckCircle2 } from "lucide-react";
 import { startOfWeek, endOfWeek, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface RankingEntry {
   student_id: string;
@@ -107,11 +108,11 @@ export const WeeklyRanking = () => {
   const getRankIcon = (position: number) => {
     switch (position) {
       case 1:
-        return <Trophy className="w-6 h-6 text-yellow-500" />;
+        return <Trophy className="w-8 h-8 text-[hsl(var(--rank-gold))] drop-shadow-lg" />;
       case 2:
-        return <Medal className="w-6 h-6 text-gray-400" />;
+        return <Medal className="w-8 h-8 text-[hsl(var(--rank-silver))] drop-shadow-lg" />;
       case 3:
-        return <Award className="w-6 h-6 text-orange-600" />;
+        return <Award className="w-8 h-8 text-[hsl(var(--rank-bronze))] drop-shadow-lg" />;
       default:
         return null;
     }
@@ -119,21 +120,22 @@ export const WeeklyRanking = () => {
 
   const getRankBadge = (position: number) => {
     if (position <= 3) {
+      const gradients = {
+        1: "bg-gradient-to-br from-[hsl(var(--rank-gold))] to-yellow-600",
+        2: "bg-gradient-to-br from-[hsl(var(--rank-silver))] to-gray-500",
+        3: "bg-gradient-to-br from-[hsl(var(--rank-bronze))] to-orange-700"
+      };
+      
       return (
-        <Badge
-          variant="default"
-          className={
-            position === 1
-              ? "bg-yellow-500"
-              : position === 2
-              ? "bg-gray-400"
-              : "bg-orange-600"
-          }
-        >
-          #{position}
-        </Badge>
+        <div className={cn(
+          "w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-2xl animate-bounce-in",
+          gradients[position as 1 | 2 | 3]
+        )}>
+          {position}º
+        </div>
       );
     }
+    
     return <span className="text-lg font-bold text-muted-foreground">#{position}</span>;
   };
 
@@ -158,67 +160,109 @@ export const WeeklyRanking = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <Card className="p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <Trophy className="w-8 h-8 text-primary" />
-          <div>
-            <h2 className="text-2xl font-bold">Ranking Semanal</h2>
-            <p className="text-sm text-muted-foreground">
-              Top 10 alunos mais ativos esta semana
-            </p>
-          </div>
+    <Card className="p-6 bg-gradient-to-br from-card via-card to-card/80 border-border hover-lift animate-slide-up overflow-hidden relative">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-0" />
+      
+      <div className="flex items-center gap-3 mb-6 relative z-10">
+        <div className="p-2 bg-gradient-to-br from-primary to-primary/80 rounded-lg shadow-lg">
+          <Trophy className="w-6 h-6 text-primary-foreground" />
         </div>
+        <div>
+          <h3 className="text-xl font-bold">Ranking Semanal</h3>
+          <p className="text-xs text-muted-foreground">Top 10 da semana</p>
+        </div>
+      </div>
 
-        <div className="space-y-3">
-          {ranking.map((entry, index) => (
+      <div className="space-y-4 relative z-10">
+        {ranking.map((entry, index) => {
+          const position = index + 1;
+          const isTopThree = position <= 3;
+
+          return (
             <div
               key={entry.student_id}
-              className={`
-                flex items-center gap-4 p-4 rounded-lg transition-all
-                ${
-                  index < 3
-                    ? "bg-primary/5 border-2 border-primary/20"
-                    : "bg-muted/50"
-                }
-              `}
+              className={cn(
+                "flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 hover-lift animate-slide-up",
+                isTopThree
+                  ? "bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-2 border-primary/30 shadow-lg"
+                  : "bg-muted/30 hover:bg-muted/50 border border-border/50"
+              )}
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="flex items-center gap-3 flex-1">
-                <div className="flex items-center gap-2 min-w-[60px]">
-                  {getRankIcon(index + 1) || getRankBadge(index + 1)}
-                </div>
+              <div className="flex items-center gap-3">
+                {isTopThree ? (
+                  <div className="flex flex-col items-center gap-1">
+                    {getRankIcon(position)}
+                    {getRankBadge(position)}
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
+                    <span className="text-lg font-bold text-muted-foreground">{position}</span>
+                  </div>
+                )}
+              </div>
 
-                <Avatar className="w-12 h-12">
-                  <AvatarImage src={entry.student_avatar_url || undefined} />
-                  <AvatarFallback className="bg-primary/20 text-primary font-bold">
-                    {entry.student_name?.[0]?.toUpperCase() || "?"}
-                  </AvatarFallback>
-                </Avatar>
+              <Avatar className={cn(
+                "transition-all duration-300",
+                isTopThree ? "w-14 h-14 border-2 border-primary shadow-lg" : "w-12 h-12"
+              )}>
+                <AvatarImage src={entry.student_avatar_url || undefined} />
+                <AvatarFallback className={cn(
+                  isTopThree && "bg-primary/20 text-primary font-bold"
+                )}>
+                  {entry.student_name.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
 
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold truncate">{entry.student_name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {entry.checkin_count} {entry.checkin_count === 1 ? "check-in" : "check-ins"} •{" "}
-                    {entry.post_count} {entry.post_count === 1 ? "foto" : "fotos"}
-                  </p>
+              <div className="flex-1 min-w-0">
+                <p className={cn(
+                  "truncate",
+                  isTopThree ? "font-bold text-lg" : "font-semibold"
+                )}>
+                  {entry.student_name}
+                </p>
+                <div className="flex gap-3 text-xs mt-1">
+                  <span className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-full",
+                    isTopThree ? "bg-primary/20 text-primary font-semibold" : "bg-muted text-muted-foreground"
+                  )}>
+                    <CheckCircle2 className="w-3 h-3" />
+                    {entry.checkin_count} check-ins
+                  </span>
+                  <span className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-full",
+                    isTopThree ? "bg-primary/20 text-primary font-semibold" : "bg-muted text-muted-foreground"
+                  )}>
+                    📸 {entry.post_count} posts
+                  </span>
                 </div>
               </div>
 
               <div className="text-right">
-                <p className="text-2xl font-bold text-primary">{entry.score}</p>
-                <p className="text-xs text-muted-foreground">pontos</p>
+                <div className={cn(
+                  "px-4 py-2 rounded-xl",
+                  isTopThree ? "bg-primary/20" : "bg-muted"
+                )}>
+                  <p className={cn(
+                    "font-bold",
+                    isTopThree ? "text-2xl text-primary" : "text-xl text-foreground"
+                  )}>
+                    {entry.score}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-medium">pontos</p>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-          <p className="text-xs text-muted-foreground">
-            <strong>Sistema de Pontuação:</strong> 2 pontos por check-in + 1 ponto por
-            foto postada
-          </p>
-        </div>
-      </Card>
-    </div>
+      <div className="mt-6 p-4 bg-muted/30 rounded-xl border border-border/50 relative z-10">
+        <p className="text-xs text-muted-foreground">
+          <strong className="text-foreground">Sistema de Pontuação:</strong> 2 pontos por check-in • 1 ponto por foto postada
+        </p>
+      </div>
+    </Card>
   );
 };

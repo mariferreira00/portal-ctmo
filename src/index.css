@@ -21,6 +21,7 @@ All colors MUST be HSL.
     /* Martial Red - Primary CTA color */
     --primary: 0 84% 50%;
     --primary-foreground: 0 0% 100%;
+    --primary-glow: 0 84% 60%;
 
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
@@ -53,21 +54,37 @@ All colors MUST be HSL.
     /* Custom martial arts theme tokens */
     --martial-red: 0 84% 50%;
     --martial-red-dark: 0 84% 35%;
-    --martial-red-glow: 0 84% 50%;
+    --martial-red-glow: 0 84% 60%;
+    --martial-orange: 25 95% 53%;
+    --martial-gold: 45 100% 51%;
     --dark-bg: 0 0% 5%;
     --dark-surface: 0 0% 8%;
     --dark-elevated: 0 0% 12%;
     
+    /* Rank colors */
+    --rank-gold: 45 100% 51%;
+    --rank-silver: 0 0% 75%;
+    --rank-bronze: 25 95% 53%;
+    
     /* Gradients */
     --gradient-martial: linear-gradient(135deg, hsl(0 0% 5%) 0%, hsl(0 84% 20%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 8%) 0%, hsl(0 0% 6%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 8%) 0%, hsl(0 84% 15%) 50%, hsl(0 0% 8%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 7%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(0 84% 50%) 0%, hsl(0 84% 60%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%) 0%, hsl(38 92% 50%) 100%);
+    --gradient-silver: linear-gradient(135deg, hsl(0 0% 75%) 0%, hsl(0 0% 60%) 100%);
+    --gradient-bronze: linear-gradient(135deg, hsl(25 95% 53%) 0%, hsl(25 85% 45%) 100%);
     
     /* Shadows and glows */
     --shadow-martial: 0 10px 40px -15px hsl(0 84% 50% / 0.4);
+    --shadow-elevated: 0 20px 50px -10px hsl(0 0% 0% / 0.5);
     --glow-red: 0 0 30px hsl(0 84% 50% / 0.3);
+    --glow-strong: 0 0 40px hsl(0 84% 50% / 0.5);
+    --glow-gold: 0 0 30px hsl(45 100% 51% / 0.4);
     
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   .dark {
@@ -141,7 +158,7 @@ All colors MUST be HSL.
       box-shadow: 0 0 20px hsl(0 84% 50% / 0.3);
     }
     50% {
-      box-shadow: 0 0 30px hsl(0 84% 50% / 0.5);
+      box-shadow: 0 0 40px hsl(0 84% 50% / 0.6);
     }
   }
 
@@ -156,11 +173,112 @@ All colors MUST be HSL.
     }
   }
 
+  @keyframes slide-up {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes bounce-in {
+    0% {
+      transform: scale(0.3);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    70% {
+      transform: scale(0.9);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
   .animate-glow {
     animation: glow-pulse 2s ease-in-out infinite;
   }
 
   .animate-slide-in {
     animation: slide-in-from-left 0.5s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.4s ease-out;
+  }
+
+  .animate-bounce-in {
+    animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(to right, transparent 0%, hsl(0 84% 50% / 0.1) 50%, transparent 100%);
+    background-size: 1000px 100%;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    transition: var(--transition-smooth);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .hover-glow:hover {
+    box-shadow: var(--glow-strong);
+  }
+
+  .hover-scale {
+    transition: var(--transition-smooth);
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
   }
 }

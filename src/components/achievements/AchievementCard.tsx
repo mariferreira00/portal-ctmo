@@ -69,54 +69,89 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
   return (
     <Card 
       className={cn(
-        "p-6 transition-all duration-300",
+        "p-6 transition-all duration-500 hover-lift overflow-hidden relative group",
         completed 
-          ? `border-2 ${glowClass} shadow-lg` 
-          : "opacity-60 grayscale hover:grayscale-0 hover:opacity-80",
-        !completed && "bg-muted/50"
+          ? `border-2 ${glowClass} shadow-2xl animate-scale-in` 
+          : "opacity-60 grayscale hover:grayscale-0 hover:opacity-90 hover:border-primary/30",
+        !completed && "bg-gradient-to-br from-muted/50 to-muted/20"
       )}
     >
-      <div className="flex items-start gap-4">
+      {/* Shimmer effect for unlocked achievements */}
+      {completed && (
+        <div className="absolute inset-0 animate-shimmer opacity-50 pointer-events-none" />
+      )}
+
+      <div className="flex items-start gap-4 relative z-10">
         <div 
           className={cn(
-            "p-3 rounded-full",
-            completed ? rarityColor : "bg-muted"
+            "p-4 rounded-2xl transition-all duration-300 relative",
+            completed 
+              ? `${rarityColor} shadow-lg animate-bounce-in` 
+              : "bg-muted/80 group-hover:bg-muted"
           )}
         >
-          <IconComponent className="w-8 h-8" />
+          <IconComponent className={cn(
+            "w-10 h-10 transition-transform duration-300",
+            completed && "group-hover:scale-110 group-hover:rotate-12"
+          )} />
+          {completed && (
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center animate-bounce-in">
+              <Trophy className="w-3 h-3 text-primary-foreground" />
+            </div>
+          )}
         </div>
         
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 space-y-3">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-bold text-lg leading-tight">{name}</h3>
-            <Badge variant="outline" className={cn("text-xs", rarityColor)}>
-              {rarity === "common" && "Comum"}
-              {rarity === "rare" && "Raro"}
-              {rarity === "epic" && "Épico"}
-              {rarity === "legendary" && "Lendário"}
+            <h3 className="font-bold text-xl leading-tight animate-slide-up">{name}</h3>
+            <Badge 
+              variant="outline" 
+              className={cn(
+                "text-xs font-bold px-3 py-1 animate-slide-down",
+                rarityColor,
+                completed && "shadow-md"
+              )}
+            >
+              {rarity === "common" && "⭐ Comum"}
+              {rarity === "rare" && "💎 Raro"}
+              {rarity === "epic" && "🔥 Épico"}
+              {rarity === "legendary" && "👑 Lendário"}
             </Badge>
           </div>
           
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
           
           {!completed && (
-            <div className="space-y-1">
-              <Progress value={progressPercentage} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                Progresso: {progress}/{requirementValue}
+            <div className="space-y-2 animate-slide-up">
+              <Progress value={progressPercentage} className="h-3" />
+              <p className="text-xs text-muted-foreground font-medium">
+                Progresso: <span className="text-primary">{progress}/{requirementValue}</span>
               </p>
             </div>
           )}
           
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-3 border-t border-border/50">
             <div className="flex items-center gap-2 text-sm">
-              <Trophy className="w-4 h-4 text-primary" />
-              <span className="font-semibold">{points} pontos</span>
+              <div className={cn(
+                "p-2 rounded-lg transition-colors",
+                completed ? "bg-primary/20" : "bg-muted"
+              )}>
+                <Trophy className={cn(
+                  "w-5 h-5",
+                  completed ? "text-primary" : "text-muted-foreground"
+                )} />
+              </div>
+              <span className="font-bold text-base">
+                <span className={completed ? "text-primary" : "text-foreground"}>
+                  {points}
+                </span>
+                <span className="text-muted-foreground text-sm ml-1">pontos</span>
+              </span>
             </div>
             
             {completed && unlockedAt && (
-              <span className="text-xs text-muted-foreground">
-                Desbloqueado em {new Date(unlockedAt).toLocaleDateString("pt-BR")}
+              <span className="text-xs text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
+                🎉 {new Date(unlockedAt).toLocaleDateString("pt-BR")}
               </span>
             )}
           </div>
