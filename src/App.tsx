@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { useUserRole } from "./hooks/useUserRole";
 import Layout from "./components/Layout";
+import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import InstructorDashboard from "./pages/InstructorDashboard";
@@ -84,7 +85,8 @@ const App = () => (
         <AuthProvider>
           <GlobalAchievementNotifications />
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Index />} />
             <Route
               path="/dashboard"
               element={
