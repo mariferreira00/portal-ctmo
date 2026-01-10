@@ -21,8 +21,11 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <img src={tatameLogo} alt="Tatame" className="h-10 w-auto" />
+          <Link to="/" className="flex items-center gap-3">
+            <img src={tatameLogo} alt="Tatame" className="h-9 w-auto" />
+            <span className="text-xl font-black text-foreground tracking-tight">
+              tatame<span className="text-primary">.app</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
