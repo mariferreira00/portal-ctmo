@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import tatameLogo from "@/assets/tatame-logo.png";
 
 const navLinks = [
   { label: "Funcionalidades", href: "#funcionalidades" },
@@ -21,10 +22,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-black text-lg">T</span>
-            </div>
-            <span className="text-xl font-black text-foreground">Tatame</span>
+            <img src={tatameLogo} alt="Tatame" className="h-10 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
