@@ -164,8 +164,8 @@ export default function InstructorProfile() {
         confirmPassword: "",
       });
     } catch (error: any) {
-      console.error("Error changing password:", error);
-      toast.error(error.message || "Erro ao alterar senha");
+      // Log generic message only - avoid exposing detailed auth errors
+      toast.error("Erro ao alterar senha. Verifique os dados e tente novamente.");
     } finally {
       setChangingPassword(false);
     }

@@ -5,6 +5,7 @@ import { UserCog, Shield, User as UserIcon, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
@@ -38,6 +39,7 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const { isAdmin } = useUserRole();
+  const { user: currentUser } = useAuth();
 
   useEffect(() => {
     if (isAdmin) {
@@ -84,6 +86,12 @@ const Users = () => {
   }
 
   async function handleRoleChange(userId: string, newRole: UserRole) {
+    // Prevent admin from modifying their own role
+    if (userId === currentUser?.id) {
+      toast.error("Você não pode alterar sua própria permissão");
+      return;
+    }
+
     try {
       // Remove all existing roles for this user
       const { error: deleteError } = await supabase
@@ -103,8 +111,7 @@ const Users = () => {
       toast.success("Permissão atualizada com sucesso!");
       fetchUsers();
     } catch (error: any) {
-      toast.error(error.message || "Erro ao atualizar permissão");
-      console.error(error);
+      toast.error("Erro ao atualizar permissão");
     }
   }
 
@@ -235,8 +242,9 @@ const Users = () => {
                 <Select
                   value={user.roles[0] || "user"}
                   onValueChange={(value) => handleRoleChange(user.id, value as UserRole)}
+                  disabled={user.id === currentUser?.id}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className={`w-[180px] ${user.id === currentUser?.id ? 'opacity-50' : ''}`}>
                     <SelectValue placeholder="Selecione uma permissão" />
                   </SelectTrigger>
                   <SelectContent>
