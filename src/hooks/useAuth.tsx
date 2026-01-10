@@ -22,85 +22,98 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('[Auth] Event:', event, 'Session:', session ? 'exists' : 'null');
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (event === "SIGNED_IN" && session?.user) {
-          console.log('[Auth] User signed in, checking role...');
-          // Defer navigation to avoid blocking auth state updates
-          setTimeout(async () => {
-            try {
-              // Check user role and redirect accordingly
-              const { data: roles } = await supabase
-                .from("user_roles")
-                .select("role")
-                .eq("user_id", session.user.id);
-              
-              const isAdmin = roles?.some(r => r.role === "admin");
-              const isInstructor = roles?.some(r => r.role === "instructor");
-              
-              if (isAdmin) {
-                console.log('[Auth] Redirecting admin to dashboard');
-                navigate("/dashboard");
-              } else if (isInstructor) {
-                // Check if instructor has teacher profile
-                const { data: teacher } = await supabase
-                  .from("teachers")
-                  .select("id")
-                  .eq("user_id", session.user.id)
-                  .maybeSingle();
-                
-                console.log('[Auth] Redirecting instructor to', teacher ? 'dashboard' : 'setup');
-                navigate(teacher ? "/instructor-dashboard" : "/instructor-setup");
-              } else {
-                // Check for pending instructor request - don't redirect if pending
-                const { data: pendingRequest } = await supabase
-                  .from("instructor_requests")
-                  .select("status")
-                  .eq("user_id", session.user.id)
-                  .eq("status", "pending")
-                  .maybeSingle();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[Auth] Event:", event, "Session:", session ? "exists" : "null");
 
-                if (pendingRequest) {
-                  // User has pending instructor request, stay on login page
-                  console.log('[Auth] User has pending request, staying on login');
-                  navigate("/");
-                  return;
-                }
+      // Only synchronous updates here
+      setSession(session);
+      setUser(session?.user ?? null);
 
-                // Regular user - check for student profile
-                const { data: student } = await supabase
-                  .from("students")
-                  .select("id")
-                  .eq("user_id", session.user.id)
-                  .maybeSingle();
-                
-                console.log('[Auth] Redirecting student to', student ? 'portal' : 'setup');
-                navigate(student ? "/student-portal" : "/student-setup");
-              }
-            } catch (error) {
-              console.error("Error checking user role:", error);
-              // Force logout on error
-              await supabase.auth.signOut();
-              navigate("/");
+      if (event === "SIGNED_IN" && session?.user) {
+        // Defer any Supabase calls + navigation to avoid auth deadlocks
+        setTimeout(async () => {
+          try {
+            const userId = session.user.id;
+
+            const [adminRes, instructorRes] = await Promise.all([
+              supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
+              supabase.rpc("has_role", { _user_id: userId, _role: "instructor" }),
+            ]);
+
+            if (adminRes.error) throw adminRes.error;
+            if (instructorRes.error) throw instructorRes.error;
+
+            if (adminRes.data) {
+              console.log("[Auth] Redirecting admin to dashboard");
+              navigate("/dashboard");
+              return;
             }
-          }, 0);
-        }
-        
-        if (event === "SIGNED_OUT") {
-          console.log('[Auth] User signed out, clearing state and redirecting');
-          setSession(null);
-          setUser(null);
-          navigate("/");
-        }
+
+            if (instructorRes.data) {
+              const { data: teacher, error: teacherError } = await supabase
+                .from("teachers")
+                .select("id")
+                .eq("user_id", userId)
+                .order("created_at", { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+              if (teacherError) throw teacherError;
+
+              console.log("[Auth] Redirecting instructor to", teacher ? "dashboard" : "setup");
+              navigate(teacher ? "/instructor-dashboard" : "/instructor-setup");
+              return;
+            }
+
+            // Non-admin & non-instructor (student/user)
+            const { data: pendingRequest, error: pendingError } = await supabase
+              .from("instructor_requests")
+              .select("status")
+              .eq("user_id", userId)
+              .eq("status", "pending")
+              .limit(1)
+              .maybeSingle();
+
+            if (pendingError) throw pendingError;
+
+            if (pendingRequest) {
+              console.log("[Auth] User has pending instructor request, staying on login");
+              navigate("/");
+              return;
+            }
+
+            const { data: student, error: studentError } = await supabase
+              .from("students")
+              .select("id")
+              .eq("user_id", userId)
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            if (studentError) throw studentError;
+
+            console.log("[Auth] Redirecting student to", student ? "portal" : "setup");
+            navigate(student ? "/student-portal" : "/student-setup");
+          } catch (error) {
+            console.error("[Auth] Error during post-login routing:", error);
+            // Don't force logout; keep the session and send to a safe route.
+            navigate("/dashboard");
+          }
+        }, 0);
       }
-    );
+
+      if (event === "SIGNED_OUT") {
+        console.log("[Auth] User signed out, clearing state and redirecting");
+        setSession(null);
+        setUser(null);
+        navigate("/");
+      }
+    });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('[Auth] Initial session check:', session ? 'exists' : 'null');
+      console.log("[Auth] Initial session check:", session ? "exists" : "null");
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
