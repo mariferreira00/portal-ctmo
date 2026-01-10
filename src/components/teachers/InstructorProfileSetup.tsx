@@ -26,30 +26,59 @@ export function InstructorProfileSetup({ onComplete }: InstructorProfileSetupPro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user?.id) {
+      toast.error("Erro: Usuário não autenticado");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const specialtiesArray = formData.specialties
-        ? formData.specialties.split(",").map((s) => s.trim()).filter(Boolean)
+        ? formData.specialties
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
         : [];
 
-      const { error } = await supabase.from("teachers").insert([
-        {
-          user_id: user?.id,
-          full_name: formData.full_name,
-          email: formData.email,
-          phone: formData.phone || null,
-          specialties: specialtiesArray.length > 0 ? specialtiesArray : null,
-          bio: formData.bio || null,
-        },
-      ]);
+      // If a profile already exists (e.g., user got redirected here by mistake), update it instead of failing.
+      const { data: existing, error: existingError } = await supabase
+        .from("teachers")
+        .select("id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (existingError) throw existingError;
 
-      toast.success("Perfil de instrutor criado com sucesso!");
+      const payload = {
+        user_id: user.id,
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone || null,
+        specialties: specialtiesArray.length > 0 ? specialtiesArray : null,
+        bio: formData.bio || null,
+      };
+
+      if (existing?.id) {
+        const { error: updateError } = await supabase
+          .from("teachers")
+          .update(payload)
+          .eq("id", existing.id);
+
+        if (updateError) throw updateError;
+        toast.success("Perfil de instrutor atualizado com sucesso!");
+      } else {
+        const { error: insertError } = await supabase.from("teachers").insert([payload]);
+        if (insertError) throw insertError;
+        toast.success("Perfil de instrutor criado com sucesso!");
+      }
+
       onComplete();
     } catch (error: any) {
-      toast.error(error.message || "Erro ao criar perfil de instrutor");
+      toast.error(error.message || "Erro ao salvar perfil de instrutor");
       console.error(error);
     } finally {
       setIsSubmitting(false);

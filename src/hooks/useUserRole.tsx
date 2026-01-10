@@ -10,31 +10,47 @@ export function useUserRole() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchRoles() {
       if (!user) {
-        setRoles([]);
-        setLoading(false);
+        if (!cancelled) {
+          setRoles([]);
+          setLoading(false);
+        }
         return;
       }
 
+      setLoading(true);
+
       try {
-        const { data, error } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id);
+        const [adminRes, instructorRes] = await Promise.all([
+          supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
+          supabase.rpc("has_role", { _user_id: user.id, _role: "instructor" }),
+        ]);
 
-        if (error) throw error;
+        if (adminRes.error) throw adminRes.error;
+        if (instructorRes.error) throw instructorRes.error;
 
-        setRoles(data?.map((r) => r.role as UserRole) || []);
+        const nextRoles: UserRole[] = [];
+        if (adminRes.data) nextRoles.push("admin");
+        if (instructorRes.data) nextRoles.push("instructor");
+        if (nextRoles.length === 0) nextRoles.push("user");
+
+        if (!cancelled) setRoles(nextRoles);
       } catch (error) {
         console.error("Error fetching roles:", error);
-        setRoles([]);
+        // Safe fallback: treat as regular user so the app still works.
+        if (!cancelled) setRoles(["user"]);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     fetchRoles();
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const hasRole = (role: UserRole) => roles.includes(role);

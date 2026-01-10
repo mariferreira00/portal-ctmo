@@ -126,10 +126,18 @@ const StudentPortal = () => {
 
   async function fetchStudentProfile() {
     try {
+      if (!user?.id) {
+        setStudentProfile(null);
+        setSetupMode(true);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("students")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) throw error;
@@ -137,11 +145,16 @@ const StudentPortal = () => {
       if (data) {
         setStudentProfile(data);
         setTempGoal(data.weekly_goal.toString());
+        setSetupMode(false);
       } else {
+        setStudentProfile(null);
         setSetupMode(true);
       }
     } catch (error: any) {
       console.error("Error fetching student profile:", error);
+      // If we can't read the profile for any reason, fall back to setup mode
+      setStudentProfile(null);
+      setSetupMode(true);
     } finally {
       setLoading(false);
     }
@@ -149,29 +162,70 @@ const StudentPortal = () => {
 
   async function handleCreateProfile(data: StudentFormData) {
     try {
-      const { data: newStudent, error } = await supabase
+      if (!user?.id) {
+        toast.error("Erro: Usuário não autenticado");
+        return;
+      }
+
+      const { data: existing, error: existingError } = await supabase
         .from("students")
-        .insert([{
-          user_id: user?.id,
-          full_name: data.full_name,
-          email: data.email,
-          phone: data.phone || null,
-          birth_date: data.birth_date || null,
-          emergency_contact: data.emergency_contact || null,
-          emergency_phone: data.emergency_phone || null,
-          monthly_fee: data.monthly_fee,
-          payment_due_day: data.payment_due_day || null,
-        }])
-        .select()
-        .single();
+        .select("id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (existingError) throw existingError;
 
-      setStudentProfile(newStudent);
-      setSetupMode(false);
-      toast.success("Perfil criado com sucesso!");
+      const payload = {
+        user_id: user.id,
+        full_name: data.full_name,
+        email: data.email,
+        phone: data.phone || null,
+        birth_date: data.birth_date || null,
+        emergency_contact: data.emergency_contact || null,
+        emergency_phone: data.emergency_phone || null,
+        monthly_fee: data.monthly_fee,
+        payment_due_day: data.payment_due_day || null,
+      };
+
+      if (existing?.id) {
+        const { error: updateError } = await supabase
+          .from("students")
+          .update(payload)
+          .eq("id", existing.id);
+
+        if (updateError) throw updateError;
+
+        // Fetch fresh profile
+        const { data: updated, error: updatedError } = await supabase
+          .from("students")
+          .select("*")
+          .eq("id", existing.id)
+          .single();
+
+        if (updatedError) throw updatedError;
+
+        setStudentProfile(updated);
+        setTempGoal(updated.weekly_goal.toString());
+        setSetupMode(false);
+        toast.success("Perfil atualizado com sucesso!");
+      } else {
+        const { data: newStudent, error: insertError } = await supabase
+          .from("students")
+          .insert([payload])
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+
+        setStudentProfile(newStudent);
+        setTempGoal(newStudent.weekly_goal.toString());
+        setSetupMode(false);
+        toast.success("Perfil criado com sucesso!");
+      }
     } catch (error: any) {
-      toast.error("Erro ao criar perfil");
+      toast.error(error.message || "Erro ao salvar perfil");
       console.error(error);
     }
   }

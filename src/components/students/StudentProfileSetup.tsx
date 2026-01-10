@@ -37,36 +37,60 @@ export function StudentProfileSetup({ onComplete }: StudentProfileSetupProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user?.id) {
       toast.error("Erro: Usuário não autenticado");
       return;
     }
-    
+
     setIsSubmitting(true);
 
     try {
-      // Criar registro do aluno
-      const { error } = await supabase.from("students").insert([
-        {
-          user_id: user.id,
-          full_name: formData.full_name,
-          email: formData.email,
-          phone: formData.phone || null,
-          birth_date: formData.birth_date || null,
-          emergency_contact: formData.emergency_contact || null,
-          emergency_phone: formData.emergency_phone || null,
-          monthly_fee: 90.00,
-          payment_due_day: parseInt(formData.payment_due_day),
-        },
-      ]);
+      // If a profile already exists (e.g., user got redirected here by mistake), update it instead of failing.
+      const { data: existing, error: existingError } = await supabase
+        .from("students")
+        .select("id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (existingError) throw existingError;
 
-      toast.success("Perfil de aluno criado com sucesso!");
+      const payload = {
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone || null,
+        birth_date: formData.birth_date || null,
+        emergency_contact: formData.emergency_contact || null,
+        emergency_phone: formData.emergency_phone || null,
+        monthly_fee: 90.0,
+        payment_due_day: parseInt(formData.payment_due_day),
+      };
+
+      if (existing?.id) {
+        const { error: updateError } = await supabase
+          .from("students")
+          .update(payload)
+          .eq("id", existing.id);
+
+        if (updateError) throw updateError;
+        toast.success("Perfil de aluno atualizado com sucesso!");
+      } else {
+        const { error: insertError } = await supabase.from("students").insert([
+          {
+            user_id: user.id,
+            ...payload,
+          },
+        ]);
+
+        if (insertError) throw insertError;
+        toast.success("Perfil de aluno criado com sucesso!");
+      }
+
       onComplete();
     } catch (error: any) {
-      toast.error(error.message || "Erro ao criar perfil de aluno");
+      toast.error(error.message || "Erro ao salvar perfil de aluno");
       console.error(error);
     } finally {
       setIsSubmitting(false);
