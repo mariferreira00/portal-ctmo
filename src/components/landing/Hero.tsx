@@ -87,20 +87,6 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="animate-slide-up mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto" style={{ animationDelay: '0.6s' }}>
-          {[
-            { number: "500+", label: "Academias" },
-            { number: "50k+", label: "Alunos" },
-            { number: "1M+", label: "Check-ins" },
-            { number: "99.9%", label: "Uptime" },
-          ].map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-primary">{stat.number}</div>
-              <div className="text-sm text-muted-foreground">{stat.label}</div>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Scroll indicator */}
