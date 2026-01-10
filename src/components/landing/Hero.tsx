@@ -36,7 +36,7 @@ export function Hero() {
 
         {/* Main headline */}
         <h1 className="animate-slide-up text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-foreground mb-6 leading-tight" style={{ animationDelay: '0.2s' }}>
-          Gerencie sua academia
+          Gerencie seu Centro de Treinamento
           <br />
           <span className="bg-gradient-to-r from-primary via-primary to-primary/80 bg-clip-text text-transparent drop-shadow-[0_0_30px_hsl(0_84%_50%_/_0.5)]">
             com excelência
