@@ -835,6 +835,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_instructor_of_class: {
+        Args: { p_class_id: string; p_user_id: string }
+        Returns: boolean
+      }
       user_can_view_enrollment: {
         Args: { _enrollment_student_id: string; _user_id: string }
         Returns: boolean
