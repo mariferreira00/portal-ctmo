@@ -958,7 +958,7 @@ const StudentPortal = () => {
       </Dialog>
 
       {/* AI Chatbot */}
-      <AIChatbot />
+      <AIChatbot studentId={studentProfile.id} />
     </div>
   );
 };
