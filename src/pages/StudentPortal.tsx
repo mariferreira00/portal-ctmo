@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getBrasiliaTime, getTodayStartBrasilia, getCurrentDayOfWeekBrasilia, getCurrentTimeBrasilia } from "@/lib/timezone";
+import { AIChatbot } from "@/components/chat/AIChatbot";
 
 interface StudentProfile {
   id: string;
@@ -955,6 +956,9 @@ const StudentPortal = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* AI Chatbot */}
+      <AIChatbot />
     </div>
   );
 };
