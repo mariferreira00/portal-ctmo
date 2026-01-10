@@ -85,9 +85,8 @@ const App = () => (
         <AuthProvider>
           <GlobalAchievementNotifications />
           <Routes>
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<Index />} />
             <Route path="/landing" element={<Landing />} />
-            <Route path="/login" element={<Index />} />
             <Route
               path="/dashboard"
               element={
