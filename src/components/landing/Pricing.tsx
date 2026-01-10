@@ -24,7 +24,6 @@ const plans = [
     notIncluded: [
       "Domínio customizado",
       "Relatórios avançados",
-      "API & Integrações"
     ]
   },
   {
@@ -44,9 +43,7 @@ const plans = [
       "Relatórios avançados",
       "Múltiplas unidades",
     ],
-    notIncluded: [
-      "API & Integrações"
-    ]
+    notIncluded: []
   },
   {
     name: "Enterprise",
@@ -64,7 +61,6 @@ const plans = [
       "Domínio customizado",
       "Relatórios avançados",
       "Múltiplas unidades",
-      "API & Integrações",
       "Onboarding personalizado",
     ],
     notIncluded: []
@@ -85,7 +81,7 @@ export function Pricing() {
             Planos que <span className="text-primary">cabem no seu bolso</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Comece grátis por 14 dias. Sem cartão de crédito. Cancele quando quiser.
+            Comece grátis por 7 dias. Sem cartão de crédito. Cancele quando quiser.
           </p>
 
           {/* Billing toggle */}
@@ -180,7 +176,7 @@ export function Pricing() {
 
         {/* Bottom note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Todos os planos incluem 14 dias de trial grátis. Sem compromisso.
+          Todos os planos incluem 7 dias de trial grátis. Sem compromisso.
         </p>
       </div>
     </section>

@@ -75,7 +75,7 @@ export function Hero() {
         <div className="animate-slide-up flex flex-wrap gap-6 justify-center items-center text-sm text-muted-foreground" style={{ animationDelay: '0.5s' }}>
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-primary" />
-            <span>14 dias grátis</span>
+            <span>7 dias grátis</span>
           </div>
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-primary" />

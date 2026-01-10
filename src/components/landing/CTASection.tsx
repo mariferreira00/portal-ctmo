@@ -41,7 +41,7 @@ export function CTASection() {
             className="text-lg px-10 py-7 bg-primary hover:bg-primary/90 shadow-[0_0_50px_hsl(0_84%_50%_/_0.5)] hover:shadow-[0_0_70px_hsl(0_84%_50%_/_0.7)] animate-glow transition-all group"
           >
             <Link to="/criar-academia">
-              Começar Agora — Grátis por 14 dias
+              Começar Agora — Grátis por 7 dias
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>
