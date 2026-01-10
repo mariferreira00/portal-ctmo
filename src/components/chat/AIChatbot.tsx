@@ -11,14 +11,18 @@ interface Message {
   content: string;
 }
 
+interface AIChatbotProps {
+  studentId?: string;
+}
+
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 
-export function AIChatbot() {
+export function AIChatbot({ studentId }: AIChatbotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Olá! Sou o Sensei AI, seu assistente virtual. Como posso ajudar você hoje? 🥋",
+      content: "Olá! Sou o Sensei AI, seu assistente virtual. Posso te ajudar com informações sobre turmas, horários, treinos e muito mais! 🥋",
     },
   ]);
   const [input, setInput] = useState("");
@@ -45,7 +49,10 @@ export function AIChatbot() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       },
-      body: JSON.stringify({ messages: userMessages }),
+      body: JSON.stringify({ 
+        messages: userMessages,
+        studentId: studentId || null 
+      }),
     });
 
     if (!resp.ok || !resp.body) {
@@ -222,7 +229,7 @@ export function AIChatbot() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Digite sua pergunta..."
+                placeholder="Pergunte sobre turmas, horários..."
                 disabled={isLoading}
                 className="flex-1"
               />
