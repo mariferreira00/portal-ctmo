@@ -613,11 +613,11 @@ const StudentPortal = () => {
     return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   }
 
-  if (setupMode) {
+  if (setupMode || !studentProfile) {
     return (
       <div className="max-w-2xl mx-auto p-6">
         <StudentForm
-          open={setupMode}
+          open={setupMode || !studentProfile}
           onOpenChange={setSetupMode}
           onSubmit={handleCreateProfile}
           userEmail={user?.email}
