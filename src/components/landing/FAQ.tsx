@@ -8,7 +8,7 @@ import {
 const faqs = [
   {
     question: "Como funciona o período de teste gratuito?",
-    answer: "Você tem 14 dias para testar todas as funcionalidades do plano escolhido, sem precisar cadastrar cartão de crédito. Ao final do período, você pode assinar ou simplesmente parar de usar."
+    answer: "Você tem 7 dias para testar todas as funcionalidades do plano escolhido, sem precisar cadastrar cartão de crédito. Ao final do período, você pode assinar ou simplesmente parar de usar."
   },
   {
     question: "Posso cancelar a qualquer momento?",
