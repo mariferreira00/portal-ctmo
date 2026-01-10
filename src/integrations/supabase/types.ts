@@ -819,6 +819,7 @@ export type Database = {
         Returns: undefined
       }
       get_student_id_from_user: { Args: { p_user_id: string }; Returns: string }
+      get_teacher_id_for_user: { Args: { p_user_id: string }; Returns: string }
       get_training_streak: { Args: { p_student_id: string }; Returns: number }
       get_users_with_emails: {
         Args: never
@@ -839,6 +840,10 @@ export type Database = {
         Args: { p_class_id: string; p_user_id: string }
         Returns: boolean
       }
+      student_can_view_teacher: {
+        Args: { p_teacher_id: string; p_user_id: string }
+        Returns: boolean
+      }
       user_can_view_enrollment: {
         Args: { _enrollment_student_id: string; _user_id: string }
         Returns: boolean
@@ -846,6 +851,10 @@ export type Database = {
       user_can_view_student: {
         Args: { _student_id: string; _user_id: string }
         Returns: boolean
+      }
+      user_is_instructor_with_teacher_id: {
+        Args: { p_user_id: string }
+        Returns: string
       }
     }
     Enums: {
