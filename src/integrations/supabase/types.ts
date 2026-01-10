@@ -787,6 +787,36 @@ export type Database = {
           training_date: string | null
           updated_at: string | null
         }
+        Insert: {
+          caption?: string | null
+          class_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          photo_url?: string | null
+          reaction_count?: never
+          reactions_summary?: never
+          student_avatar_url?: never
+          student_id?: string | null
+          student_name?: never
+          thumbnail_url?: string | null
+          training_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          caption?: string | null
+          class_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          photo_url?: string | null
+          reaction_count?: never
+          reactions_summary?: never
+          student_avatar_url?: never
+          student_id?: string | null
+          student_name?: never
+          thumbnail_url?: string | null
+          training_date?: string | null
+          updated_at?: string | null
+        }
         Relationships: [
           {
             foreignKeyName: "training_posts_class_id_fkey"
@@ -817,6 +847,14 @@ export type Database = {
       check_post_achievements: {
         Args: { p_student_id: string }
         Returns: undefined
+      }
+      get_student_class_ids: { Args: { p_user_id: string }; Returns: string[] }
+      get_student_display_info: {
+        Args: { p_student_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+        }[]
       }
       get_student_id_from_user: { Args: { p_user_id: string }; Returns: string }
       get_teacher_id_for_user: { Args: { p_user_id: string }; Returns: string }
