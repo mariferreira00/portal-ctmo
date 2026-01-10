@@ -140,12 +140,14 @@ export function AIChatbot({ studentId }: AIChatbotProps) {
 
   return (
     <>
-      {/* Chat Button */}
+      {/* Chat Button - larger touch target on mobile */}
       <Button
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50",
+          "fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg z-50",
+          "sm:bottom-6 sm:right-6",
           "bg-primary hover:bg-primary/90 transition-all duration-300",
+          "touch-manipulation active:scale-95",
           isOpen && "hidden"
         )}
         size="icon"
@@ -153,15 +155,25 @@ export function AIChatbot({ studentId }: AIChatbotProps) {
         <MessageCircle className="h-6 w-6" />
       </Button>
 
-      {/* Chat Window */}
+      {/* Chat Window - Full screen on mobile, floating on desktop */}
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-[380px] h-[500px] flex flex-col shadow-2xl z-50 overflow-hidden border-2">
+        <div 
+          className={cn(
+            "fixed z-50 flex flex-col bg-background overflow-hidden",
+            // Mobile: full screen
+            "inset-0",
+            // Desktop: floating card
+            "sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[380px] sm:h-[520px] sm:rounded-xl sm:border-2 sm:shadow-2xl"
+          )}
+        >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 bg-primary text-primary-foreground">
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5" />
+          <div className="flex items-center justify-between p-4 bg-primary text-primary-foreground safe-area-top">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                <Bot className="h-5 w-5" />
+              </div>
               <div>
-                <h3 className="font-semibold">Sensei AI</h3>
+                <h3 className="font-semibold text-base">Sensei AI</h3>
                 <p className="text-xs opacity-80">Assistente Virtual</p>
               </div>
             </div>
@@ -169,20 +181,20 @@ export function AIChatbot({ studentId }: AIChatbotProps) {
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(false)}
-              className="hover:bg-primary-foreground/10 text-primary-foreground"
+              className="hover:bg-primary-foreground/10 text-primary-foreground h-10 w-10 touch-manipulation"
             >
               <X className="h-5 w-5" />
             </Button>
           </div>
 
           {/* Messages */}
-          <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-            <div className="space-y-4">
+          <ScrollArea className="flex-1 p-3 sm:p-4" ref={scrollRef}>
+            <div className="space-y-3 sm:space-y-4">
               {messages.map((message, index) => (
                 <div
                   key={index}
                   className={cn(
-                    "flex gap-2",
+                    "flex gap-2 sm:gap-3",
                     message.role === "user" ? "justify-end" : "justify-start"
                   )}
                 >
@@ -193,13 +205,13 @@ export function AIChatbot({ studentId }: AIChatbotProps) {
                   )}
                   <div
                     className={cn(
-                      "max-w-[75%] rounded-2xl px-4 py-2 text-sm",
+                      "max-w-[80%] sm:max-w-[75%] rounded-2xl px-3 py-2 sm:px-4 text-sm leading-relaxed",
                       message.role === "user"
                         ? "bg-primary text-primary-foreground rounded-br-md"
                         : "bg-muted rounded-bl-md"
                     )}
                   >
-                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    <p className="whitespace-pre-wrap break-words">{message.content}</p>
                   </div>
                   {message.role === "user" && (
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
@@ -209,20 +221,24 @@ export function AIChatbot({ studentId }: AIChatbotProps) {
                 </div>
               ))}
               {isLoading && messages[messages.length - 1]?.role === "user" && (
-                <div className="flex gap-2 justify-start">
+                <div className="flex gap-2 sm:gap-3 justify-start">
                   <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <Bot className="h-4 w-4 text-primary" />
                   </div>
-                  <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                      <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                      <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce"></span>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           </ScrollArea>
 
-          {/* Input */}
-          <div className="p-4 border-t bg-background">
+          {/* Input - with safe area for mobile */}
+          <div className="p-3 sm:p-4 border-t bg-background safe-area-bottom">
             <div className="flex gap-2">
               <Input
                 ref={inputRef}
@@ -231,18 +247,19 @@ export function AIChatbot({ studentId }: AIChatbotProps) {
                 onKeyPress={handleKeyPress}
                 placeholder="Pergunte sobre turmas, horários..."
                 disabled={isLoading}
-                className="flex-1"
+                className="flex-1 h-11 text-base"
               />
               <Button
                 onClick={handleSend}
                 disabled={!input.trim() || isLoading}
                 size="icon"
+                className="h-11 w-11 touch-manipulation active:scale-95"
               >
-                <Send className="h-4 w-4" />
+                <Send className="h-5 w-5" />
               </Button>
             </div>
           </div>
-        </Card>
+        </div>
       )}
     </>
   );
